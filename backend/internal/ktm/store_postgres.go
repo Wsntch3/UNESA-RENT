@@ -10,8 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// PostgresStore menyimpan metadata verifikasi KTM di PostgreSQL.
-// File fisik tidak pernah masuk database; hanya storage_key.
 type PostgresStore struct {
 	pool *pgxpool.Pool
 }
