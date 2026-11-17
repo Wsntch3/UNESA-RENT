@@ -6,5 +6,7 @@ dist/
 backend/data/
 backend/server
 backend/*.exe
+backend/.env
+postgres/.env
 *.log
 .DS_Store

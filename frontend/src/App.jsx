@@ -15,7 +15,7 @@ export default function App() {
       {status === 'anonymous' && (
         <p>
           Belum login. Buat form lalu panggil <code>login({'{ email, password }'})</code> atau{' '}
-          <code>register({'{ name, email, password }'})</code> dari <code>useAuth()</code>.
+          <code>register({'{ name, email, password, nim }'})</code> dari <code>useAuth()</code>.
         </p>
       )}
 

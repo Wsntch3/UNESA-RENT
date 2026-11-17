@@ -2,6 +2,8 @@ package auth
 
 import (
 	"errors"
+	"crypto/rand"
+	"encoding/hex"
 	"fmt"
 	"time"
 
@@ -18,6 +20,8 @@ var (
 type Claims struct {
 	Email string `json:"email"`
 	Name  string `json:"name"`
+	Role  string `json:"role"`
+	TokenVersion int    `json:"tv"`
 	jwt.RegisteredClaims
 }
 
@@ -26,24 +30,34 @@ type TokenIssuer struct {
 	ttl    time.Duration
 }
 
+func newJTI() string {
+	b := make([]byte, 16)
+	_, _ = rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
 func NewTokenIssuer(secret []byte, ttl time.Duration) *TokenIssuer {
+	if len(secret) < 32 {
+		panic("JWT secret minimal 32 byte")
+	}
 	return &TokenIssuer{secret: secret, ttl: ttl}
 }
 
-func (t *TokenIssuer) Issue(userID, email, name string) (token string, expiresAt time.Time, err error) {
+func (t *TokenIssuer) Issue(userID, email, name, role string, tokenVersion int) (token string, expiresAt time.Time, err error) {
 	now := time.Now()
 	expiresAt = now.Add(t.ttl)
 
 	claims := Claims{
 		Email: email,
 		Name:  name,
+		Role:  role,
+		TokenVersion: tokenVersion,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,
 			Subject:   userID,
 			IssuedAt:  jwt.NewNumericDate(now),
-			NotBefore: jwt.NewNumericDate(now),
 			ExpiresAt: jwt.NewNumericDate(expiresAt),
-			ID:        fmt.Sprintf("%d-%s", now.UnixNano(), userID),
+			ID:        newJTI(),
 		},
 	}
 
@@ -63,6 +77,7 @@ func (t *TokenIssuer) Parse(raw string) (*Claims, error) {
 		jwt.WithIssuer(issuer),
 		jwt.WithExpirationRequired(),
 		jwt.WithIssuedAt(),
+		jwt.WithLeeway(30 * time.Second),
 	)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {

@@ -4,7 +4,7 @@ Root proyek dengan:
 
 - **Frontend**: React 19 + Vite (JavaScript)
 - **Backend**: Go (standard library `net/http`)
-- **Auth**: register + login + endpoint `me` menggunakan **JWT (HS256)** dan password **bcrypt**
+- **Auth**: register + login + endpoint `me` menggunakan **JWT (HS256)** dengan claim `role` dan password **bcrypt**
 ---
 
 ## Struktur
@@ -36,10 +36,12 @@ Root proyek dengan:
 │   │   └── main.jsx
 │   └── vite.config.js
 ├── postgres/
+│   ├── initdb/000_extensions.sql
+│   ├── migrations/            # 0001 identity ... 0008 letter governance
+│   ├── seed/dev_seed.sql
 │   ├── docker-compose.yml
 │   ├── .env.example
-│   ├── README.md
-│   └── initdb/001_schema.sql
+│   └── README.md
 ├── Makefile
 └── README.md
 ```
@@ -91,43 +93,63 @@ make dev
 
 ## PostgreSQL
 
-Setup PostgreSQL ada di folder `postgres/`, berisi Docker Compose, schema awal `users`,
-dan contoh environment.
+Setup PostgreSQL ada di folder `postgres/`, berisi Docker Compose, migration
+versioned (`golang-migrate`), seed development, dan schema lengkap MVP:
+
+- identitas: `study_programs`, `users`, `user_contacts`, `ktm_verifications`
+- katalog: `categories`, `campus_locations`, `listings`, `listing_photos`, `listing_blocks`
+- transaksi: `rentals`, `rental_events`, `letter_templates`, `security_letters`
+- governance: `reports`, `moderation_actions`, `notifications`
 
 ```bash
 cd postgres
 cp .env.example .env
-docker compose up -d
+docker compose up -d   # PostgreSQL + migration otomatis
 ```
 
 Atau dari root proyek:
 
 ```bash
-make db-up
-make db-down
-make db-reset
+make db-up             # jalankan PostgreSQL dan migration
+make db-seed           # seed prodi, kategori, lokasi, admin, template surat
+make db-migrate        # jalankan migration yang belum diterapkan
+make db-migrate-down   # rollback satu migration
+make db-down           # hentikan container, data tetap ada
+make db-reset          # hapus volume + buat ulang + migration
 ```
 
-Schema dijalankan otomatis saat container pertama kali dibuat. Detail koneksi, skema,
-dan cara menjalankan tanpa Docker ada di `postgres/README.md`.
+Schema dijalankan otomatis saat container pertama kali dibuat, lalu service `migrate`
+menerapkan seluruh migration. Detail koneksi, ERD, aturan integritas, dan cara
+menjalankan tanpa Docker ada di [`postgres/README.md`](postgres/README.md).
+
+> Seed development memakai kode fakultas FT `05` dan kode prodi `120`
+> (S1 Teknik Informatika). Tambahkan kode prodi FT lain setelah daftar resmi
+> diperoleh; jangan menebak kode karena trigger memakainya untuk validasi NIM.
 
 ---
 
 ## Endpoint API
 
-| Method | Path                 | Auth   | Deskripsi                          |
-| ------ | -------------------- | ------ | ---------------------------------- |
-| GET    | `/api/health`        | -      | Health check                       |
-| POST   | `/api/auth/register` | -      | Daftar user, langsung dapat token  |
-| POST   | `/api/auth/login`    | -      | Login, dapat token                 |
-| GET    | `/api/auth/me`       | Bearer | Data user yang sedang login        |
+| Method | Path                          | Auth                | Deskripsi                              |
+| ------ | ----------------------------- | ------------------- | -------------------------------------- |
+| GET    | `/api/health`                 | -                   | Health check                           |
+| POST   | `/api/auth/register`          | -                   | Daftar mahasiswa, langsung dapat token |
+| POST   | `/api/auth/login`             | -                   | Login, dapat token                     |
+| GET    | `/api/auth/me`                | Bearer              | Data user yang sedang login            |
+| POST   | `/api/ktm`                    | Bearer + mahasiswa  | Ajukan verifikasi KTM (multipart)      |
+| GET    | `/api/ktm/me`                 | Bearer + mahasiswa  | Riwayat dan status verifikasi KTM      |
+| GET    | `/api/ktm/{id}/file`          | Bearer              | File KTM (pemilik atau `admin_dev`)    |
+| GET    | `/api/admin/ktm`              | Bearer + `admin_dev` | Antrean verifikasi (`?status=`)        |
+| POST   | `/api/admin/ktm/{id}/verify`  | Bearer + `admin_dev` | Setujui pengajuan                      |
+| POST   | `/api/admin/ktm/{id}/reject`  | Bearer + `admin_dev` | Tolak pengajuan                        |
+| POST   | `/api/admin/ktm/{id}/revoke`  | Bearer + `admin_dev` | Cabut verifikasi                       |
 
 ### Register
 
 ```bash
 curl -X POST http://localhost:8080/api/auth/register \
   -H 'Content-Type: application/json' \
-  -d '{"name":"Budi Santoso","email":"budi@example.com","password":"rahasia123"}'
+  -d '{"name":"Budi Santoso","email":"budi@example.com","password":"rahasia123","nim":"24051204999"}'
 ```
 
 `201 Created`
@@ -138,13 +160,22 @@ curl -X POST http://localhost:8080/api/auth/register \
   "token_type": "Bearer",
   "expires_at": "2026-11-15T11:57:02+07:00",
   "user": {
-    "id": "a111cd4a97e652933cc3474a66c3ad3c",
+    "id": "9399caea-c9e8-483a-8a48-5104f65c4491",
     "name": "Budi Santoso",
     "email": "budi@example.com",
-    "created_at": "2026-11-14T04:57:02Z"
+    "role": "mahasiswa",
+    "nim": "24051204999",
+    "study_program_code": "120",
+    "status": "active",
+    "created_at": "2026-11-15T15:35:07+07:00"
   }
 }
 ```
+
+`nim` wajib, 11 digit dengan format `AA FF PPP J UUU`. `FF` adalah kode fakultas
+(Fakultas Teknik = `05`) dan `PPP` adalah kode prodi (contoh S1 Teknik Informatika =
+`120`). Kombinasi fakultas/prodi harus ada di tabel `study_programs`.
+`study_program_code` diisi otomatis oleh database.
 
 ### Login
 
@@ -166,13 +197,64 @@ curl http://localhost:8080/api/auth/me \
 ```json
 {
   "user": {
-    "id": "a111cd4a97e652933cc3474a66c3ad3c",
+    "id": "9399caea-c9e8-483a-8a48-5104f65c4491",
     "name": "Budi Santoso",
     "email": "budi@example.com",
-    "created_at": "2026-11-14T04:57:02Z"
+    "role": "mahasiswa",
+    "nim": "24051204999",
+    "study_program_code": "120",
+    "status": "active",
+    "created_at": "2026-11-15T15:35:07+07:00"
   }
 }
 ```
+
+### Verifikasi KTM
+
+Akun mahasiswa boleh aktif tanpa KTM, tetapi belum boleh membuat listing atau
+menyewa. Pengajuan KTM adalah tahap terpisah dan wajib direview `admin_dev`.
+
+Format file: **JPEG atau PNG**, maksimal **5 MB**, field multipart bernama `file`.
+Di development file disimpan di `KTM_STORAGE_DIR` (default `backend/data/ktm`);
+database hanya menyimpan `storage_key`.
+
+```bash
+# Ajukan KTM (mahasiswa)
+curl -X POST http://localhost:8080/api/ktm \
+  -H 'Authorization: Bearer <token>' \
+  -F 'file=@ktm.png;type=image/png'
+
+# Riwayat + status verifikasi sendiri
+curl http://localhost:8080/api/ktm/me \
+  -H 'Authorization: Bearer <token>'
+
+# Antrean admin (default status=pending)
+curl 'http://localhost:8080/api/admin/ktm?status=pending' \
+  -H 'Authorization: Bearer <token-admin>'
+
+# Setujui: admin wajib mengonfirmasi NIM pada kartu
+curl -X POST http://localhost:8080/api/admin/ktm/<id>/verify \
+  -H 'Authorization: Bearer <token-admin>' \
+  -H 'Content-Type: application/json' \
+  -d '{"confirm_nim":true}'
+
+# Tolak / cabut: alasan wajib
+curl -X POST http://localhost:8080/api/admin/ktm/<id>/reject \
+  -H 'Authorization: Bearer <token-admin>' \
+  -H 'Content-Type: application/json' \
+  -d '{"reason":"Foto KTM buram"}'
+
+curl -X POST http://localhost:8080/api/admin/ktm/<id>/revoke \
+  -H 'Authorization: Bearer <token-admin>' \
+  -H 'Content-Type: application/json' \
+  -d '{"reason":"KTM bukan milik pemilik akun"}'
+```
+
+Aturan status: hanya satu pengajuan `pending` per user; `verified` tidak bisa
+diverifikasi ulang; `rejected`/`revoked` wajib punya alasan; pengajuan baru boleh
+dibuat setelah status sebelumnya `rejected`/`revoked`. Akses file memakai
+`GET /api/ktm/{id}/file` dan hanya diizinkan untuk pemilik akun atau `admin_dev`.
+Setiap verify/reject/revoke dan akses file dicatat di `moderation_actions`.
 
 ### Format error
 
@@ -189,12 +271,13 @@ curl http://localhost:8080/api/auth/me \
 }
 ```
 
-Kode error yang mungkin: `validation_error` (422), `email_taken` (409),
+Kode error yang mungkin: `validation_error` (422), `email_taken` / `nim_taken` (409),
 `invalid_credentials` (401), `missing_token` / `invalid_token` / `token_expired` (401),
-`invalid_body` (400), `internal_error` (500).
+`forbidden` (403), `invalid_body` (400), `internal_error` (500).
 
 > Catatan: body register/login memakai `DisallowUnknownFields`, jadi kirim hanya field
-> yang terdaftar (`name`, `email`, `password`). Jangan kirim `confirmPassword` ke API.
+> yang terdaftar (`name`, `email`, `password`, `nim`). Jangan kirim `confirmPassword`
+> ke API.
 
 ---
 
@@ -238,6 +321,7 @@ export default function LoginPage() {
       {error && <p>{error.message}</p>}
       {error?.fields?.email && <p>{error.fields.email}</p>}
       {error?.fields?.password && <p>{error.fields.password}</p>}
+      {error?.fields?.nim && <p>{error.fields.nim}</p>}
       <button disabled={pending}>{pending ? 'Memproses...' : 'Login'}</button>
     </form>
   )
@@ -249,10 +333,16 @@ export default function LoginPage() {
 ```jsx
 const { register, pending, error } = useAuth()
 
-await register({ name: 'Budi', email: 'budi@example.com', password: 'rahasia123' })
+await register({
+  name: 'Budi',
+  email: 'budi@example.com',
+  password: 'rahasia123',
+  nim: '24051204999',
+})
 ```
 
-Register otomatis login (token langsung disimpan oleh context).
+Register otomatis login (token langsung disimpan oleh context). `nim` wajib diisi
+dengan NIM yang prefix-nya cocok dengan kode prodi Fakultas Teknik.
 
 ### Cek status & logout
 
@@ -301,7 +391,8 @@ Kalau backend membalas 401 karena token kedaluwarsa, panggil `logout()`.
 | `JWT_SECRET`   | secret dev (dengan warning) | **Wajib diganti**, minimal 32 karakter |
 | `JWT_TTL`      | `24h`                    | Masa berlaku access token               |
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Origin frontend, pisahkan koma       |
-| `STORE_PATH`   | `data/users.json`        | File penyimpanan user (dev)             |
+| `DATABASE_URL` | kosong                   | DSN PostgreSQL; kosong = file JSON      |
+| `STORE_PATH`   | `data/users.json`        | File penyimpanan user saat tanpa database |
 
 Frontend memakai `VITE_API_URL` (opsional). Saat development biarkan kosong karena
 Vite mem-proxy `/api` ke `http://localhost:8080`.
@@ -316,8 +407,10 @@ Vite mem-proxy `/api` ke `http://localhost:8080`.
   production yang lebih ketat, gunakan access token di memori + refresh token httpOnly.
 - Logout bersifat client-side karena JWT stateless. Jika butuh invalidasi token,
   tambahkan refresh token + tabel sesi/denylist.
-- Penyimpanan user saat ini file JSON dengan lock (cukup untuk dev). Setup PostgreSQL
-  sudah tersedia di `postgres/`; untuk memakainya, implementasikan interface `user.Store`
-  lalu sambungkan `DATABASE_URL`.
+- Penyimpanan user memakai PostgreSQL (`user.PostgresStore`) jika `DATABASE_URL` diisi.
+  Tanpa `DATABASE_URL`, backend memakai file JSON dengan lock (cukup untuk dev).
+  PostgreSQL menegakkan validasi NIM/prodi, keunikan email/NIM, dan role.
+- JWT membawa claim `role`, tetapi role/status terbaru selalu dibaca dari database;
+  middleware `RequireRole` membatasi endpoint admin ke `admin_dev`.
 - Sebelum deploy: set `JWT_SECRET` dari secret manager, aktifkan HTTPS, batasi
   `CORS_ORIGINS`, dan tambahkan rate limiting pada endpoint login/register.

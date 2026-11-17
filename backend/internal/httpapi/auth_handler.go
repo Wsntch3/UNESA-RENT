@@ -99,6 +99,17 @@ func (h *AuthHandler) handleError(w http.ResponseWriter, operation string, err e
 	case errors.Is(err, user.ErrEmailTaken):
 		writeError(w, http.StatusConflict, "email_taken", "Email sudah terdaftar")
 
+	case errors.Is(err, user.ErrNIMTaken):
+		writeError(w, http.StatusConflict, "nim_taken", "NIM sudah terdaftar")
+
+	case errors.Is(err, user.ErrInvalidNIM):
+		writeValidationError(w, map[string]string{
+			"nim": "NIM tidak cocok dengan fakultas/program studi Fakultas Teknik",
+		})
+	
+	case errors.Is(err, user.ErrAccountSuspended):
+		writeError(w, http.StatusForbidden, "account_suspended", "Akun Anda ditangguhkan, hubungi admin")
+
 	case errors.Is(err, user.ErrInvalidCredentials):
 		writeError(w, http.StatusUnauthorized, "invalid_credentials", "Email atau password salah")
 

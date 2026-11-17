@@ -19,5 +19,20 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+
+  migrate:
+    image: migrate/migrate:v4.18.1
+    container_name: unesarent_migrate
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./migrations:/migrations:ro
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://${POSTGRES_USER:-unesarent}:${POSTGRES_PASSWORD:-unesarent_dev}@postgres:5432/${POSTGRES_DB:-unesarent}?sslmode=disable"
+      - "up"
+    restart: "no"
+
 volumes:
   postgres_data:

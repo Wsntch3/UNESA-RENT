@@ -1,11 +1,11 @@
 import { request } from './http'
 
 export const authApi = {
-  register({ name, email, password }) {
+  register({ name, email, password, nim }) {
     return request('/api/auth/register', {
       method: 'POST',
       auth: false,
-      body: { name, email, password },
+      body: { name, email, password, nim },
     })
   },
 

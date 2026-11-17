@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/mail"
+	"regexp"
 	"strings"
 	"time"
 	"unicode/utf8"
@@ -17,7 +18,10 @@ const (
 	maxPasswordLength = 72
 	maxNameLength     = 80
 	maxEmailLength    = 254
+	nimLength         = 11 // AA FF PPP J UUU
 )
+
+var nimPattern = regexp.MustCompile(fmt.Sprintf(`^[0-9]{%d}$`, nimLength))
 
 var ErrInvalidCredentials = errors.New("email atau password salah")
 
@@ -48,6 +52,7 @@ type RegisterInput struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
 	Password string `json:"password"`
+	NIM      string `json:"nim"`
 }
 
 type LoginInput struct {
@@ -58,6 +63,7 @@ type LoginInput struct {
 func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthResult, error) {
 	in.Name = strings.TrimSpace(in.Name)
 	in.Email = normalizeEmail(in.Email)
+	in.NIM = strings.TrimSpace(in.NIM)
 
 	if fields := validateRegister(in); len(fields) > 0 {
 		return AuthResult{}, &ValidationError{Fields: fields}
@@ -68,24 +74,22 @@ func (s *Service) Register(ctx context.Context, in RegisterInput) (AuthResult, e
 		return AuthResult{}, fmt.Errorf("hash password: %w", err)
 	}
 
-	id, err := NewID()
+	newUser := User{
+		Name:         in.Name,
+		Email:        in.Email,
+		PasswordHash: hash,
+		Role:         RoleMahasiswa,
+		NIM:          in.NIM,
+		Status:       StatusActive,
+	}
+
+	// Store yang mengisi ID dan kolom turunan database (mis. study_program_code, token_version).
+	created, err := s.store.Create(ctx, newUser)
 	if err != nil {
 		return AuthResult{}, err
 	}
 
-	newUser := User{
-		ID:           id,
-		Name:         in.Name,
-		Email:        in.Email,
-		PasswordHash: hash,
-		CreatedAt:    time.Now().UTC(),
-	}
-
-	if err := s.store.Create(ctx, newUser); err != nil {
-		return AuthResult{}, err
-	}
-
-	return s.buildResult(newUser)
+	return s.buildResult(created)
 }
 
 var dummyHash = func() string {
@@ -120,6 +124,12 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthResult, error) 
 		return AuthResult{}, ErrInvalidCredentials
 	}
 
+	// Status dicek setelah password benar agar status akun tidak bocor
+	// ke orang yang tidak tahu passwordnya.
+	if found.Status != StatusActive {
+		return AuthResult{}, ErrAccountSuspended
+	}
+
 	return s.buildResult(found)
 }
 
@@ -132,7 +142,7 @@ func (s *Service) Me(ctx context.Context, userID string) (PublicUser, error) {
 }
 
 func (s *Service) buildResult(u User) (AuthResult, error) {
-	token, expiresAt, err := s.tokens.Issue(u.ID, u.Email, u.Name)
+	token, expiresAt, err := s.tokens.Issue(u.ID, u.Email, u.Name, string(u.Role), u.TokenVersion)
 	if err != nil {
 		return AuthResult{}, err
 	}
@@ -173,6 +183,13 @@ func validateRegister(in RegisterInput) map[string]string {
 		fields["password"] = fmt.Sprintf("Password minimal %d karakter", minPasswordLength)
 	case pwLen > maxPasswordLength:
 		fields["password"] = fmt.Sprintf("Password maksimal %d byte", maxPasswordLength)
+	}
+
+	switch {
+	case in.NIM == "":
+		fields["nim"] = "NIM wajib diisi"
+	case !nimPattern.MatchString(in.NIM):
+		fields["nim"] = fmt.Sprintf("NIM harus berupa %d digit angka", nimLength)
 	}
 
 	return fields
