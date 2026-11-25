@@ -13,10 +13,12 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"unesarent/backend/internal/auth"
+	"unesarent/backend/internal/catalog"
 	"unesarent/backend/internal/config"
 	"unesarent/backend/internal/db"
 	"unesarent/backend/internal/httpapi"
 	"unesarent/backend/internal/ktm"
+	"unesarent/backend/internal/rental"
 	"unesarent/backend/internal/user"
 )
 
@@ -57,14 +59,37 @@ func main() {
 		slog.Warn("fitur KTM dinonaktifkan karena DATABASE_URL kosong")
 	}
 
-	router := httpapi.NewRouter(cfg, httpapi.NewAuthHandler(svc), ktmHandler, tokens, store)
+	var listingHandler *httpapi.ListingHandler
+	if pool != nil {
+		files, err := catalog.NewLocalStorage(cfg.ListingStorageDir)
+		if err != nil {
+			slog.Error("gagal menyiapkan penyimpanan foto listing", "error", err)
+			os.Exit(1)
+		}
+		listingSvc := catalog.NewService(catalog.NewPostgresStore(pool), files)
+		listingHandler = httpapi.NewListingHandler(listingSvc)
+		slog.Info("penyimpanan foto listing", "dir", cfg.ListingStorageDir)
+	} else {
+		slog.Warn("fitur katalog listing dinonaktifkan karena DATABASE_URL kosong")
+	}
 
+	var rentalHandler *httpapi.RentalHandler
+	if pool != nil {
+		rentalSvc := rental.NewService(rental.NewPostgresStore(pool))
+		rentalHandler = httpapi.NewRentalHandler(rentalSvc, cfg.AgreementPDFPath, cfg.CORSOrigins)
+		slog.Info("PDF perjanjian", "path", cfg.AgreementPDFPath)
+	} else {
+		slog.Warn("fitur rental dinonaktifkan karena DATABASE_URL kosong")
+	}
+
+	router := httpapi.NewRouter(cfg, httpapi.NewAuthHandler(svc), ktmHandler, listingHandler, rentalHandler, tokens, store)
+
+	// ReadTimeout/WriteTimeout dimatikan karena koneksi WebSocket berumur panjang.
+	// Perlindungan slowloris tetap ada lewat ReadHeaderTimeout.
 	server := &http.Server{
 		Addr:              cfg.Addr,
 		Handler:           router,
 		ReadHeaderTimeout: 5 * time.Second,
-		ReadTimeout:       10 * time.Second,
-		WriteTimeout:      15 * time.Second,
 		IdleTimeout:       60 * time.Second,
 	}
 

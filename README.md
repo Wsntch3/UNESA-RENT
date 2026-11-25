@@ -5,6 +5,18 @@ Root proyek dengan:
 - **Frontend**: React 19 + Vite (JavaScript)
 - **Backend**: Go (standard library `net/http`)
 - **Auth**: register + login + endpoint `me` menggunakan **JWT (HS256)** dengan claim `role` dan password **bcrypt**
+
+## Fitur
+
+- **1.3.2 Manajemen listing** — penyedia dapat membuat, mengubah, menghapus,
+  mengunggah maksimal 3 foto, dan memblokir tanggal listing.
+- **1.3.3 Katalog dan pencarian** — pencarian judul, filter kategori/lokasi/harga,
+  sort, detail listing, dan moderasi admin.
+- **1.3.4 Pengajuan rental dan offer** — ajukan sewa, approve/reject penyedia,
+  cancel/complete, availability, dan notifikasi in-app.
+- **1.3.5 Chat dan perjanjian** — chat realtime WebSocket dengan riwayat REST,
+  tiket sekali pakai, dan PDF perjanjian statis untuk peserta rental.
+
 ---
 
 ## Struktur
@@ -17,8 +29,22 @@ Root proyek dengan:
 │   │   ├── auth/
 │   │   │   ├── jwt.go
 │   │   │   └── password.go
+│   │   ├── catalog/
+│   │   │   ├── model.go
+│   │   │   ├── service.go
+│   │   │   ├── storage.go
+│   │   │   ├── store.go
+│   │   │   └── store_postgres.go
 │   │   ├── config/
 │   │   ├── httpapi/
+│   │   │   ├── listing_handler.go
+│   │   │   ├── rental_handler.go
+│   │   │   └── rental_chat_hub.go
+│   │   ├── rental/
+│   │   │   ├── model.go
+│   │   │   ├── service.go
+│   │   │   ├── store.go
+│   │   │   └── store_postgres.go
 │   │   └── user/
 │   ├── .env.example
 │   └── go.mod
@@ -37,7 +63,7 @@ Root proyek dengan:
 │   └── vite.config.js
 ├── postgres/
 │   ├── initdb/000_extensions.sql
-│   ├── migrations/            # 0001 identity ... 0008 letter governance
+│   ├── migrations/            # 0001 identity ... 0009 rental chat
 │   ├── seed/dev_seed.sql
 │   ├── docker-compose.yml
 │   ├── .env.example
@@ -98,7 +124,7 @@ versioned (`golang-migrate`), seed development, dan schema lengkap MVP:
 
 - identitas: `study_programs`, `users`, `user_contacts`, `ktm_verifications`
 - katalog: `categories`, `campus_locations`, `listings`, `listing_photos`, `listing_blocks`
-- transaksi: `rentals`, `rental_events`, `letter_templates`, `security_letters`
+- transaksi: `rentals`, `rental_events`, `rental_messages`, `letter_templates`, `security_letters`
 - governance: `reports`, `moderation_actions`, `notifications`
 
 ```bash
@@ -143,6 +169,38 @@ menjalankan tanpa Docker ada di [`postgres/README.md`](postgres/README.md).
 | POST   | `/api/admin/ktm/{id}/verify`  | Bearer + `admin_dev` | Setujui pengajuan                      |
 | POST   | `/api/admin/ktm/{id}/reject`  | Bearer + `admin_dev` | Tolak pengajuan                        |
 | POST   | `/api/admin/ktm/{id}/revoke`  | Bearer + `admin_dev` | Cabut verifikasi                       |
+| GET    | `/api/categories`             | -                   | Daftar kategori aktif                  |
+| GET    | `/api/campus-locations`       | -                   | Daftar lokasi serah-terima            |
+| GET    | `/api/listings`               | -                   | Katalog: pencarian + filter + sort    |
+| GET    | `/api/listings/{id}`          | -                   | Detail listing aktif                  |
+| GET    | `/api/listings/{id}/photos/{photoID}/file` | -    | File foto listing                     |
+| GET    | `/api/listings/mine`          | Bearer + mahasiswa  | Listing milik sendiri                 |
+| POST   | `/api/listings`               | Bearer + mahasiswa  | Buat listing (wajib KTM verified)     |
+| PUT    | `/api/listings/{id}`          | Bearer + mahasiswa  | Ubah listing milik sendiri            |
+| DELETE | `/api/listings/{id}`          | Bearer + mahasiswa  | Hapus listing milik sendiri           |
+| POST   | `/api/listings/{id}/photos`   | Bearer + mahasiswa  | Unggah foto (multipart, maks 3)       |
+| DELETE | `/api/listings/{id}/photos/{photoID}` | Bearer + mahasiswa | Hapus foto                    |
+| GET    | `/api/listings/{id}/blocks`   | Bearer + mahasiswa  | Periode blokir milik sendiri          |
+| POST   | `/api/listings/{id}/blocks`   | Bearer + mahasiswa  | Blokir rentang tanggal                |
+| DELETE | `/api/listings/{id}/blocks/{blockID}` | Bearer + mahasiswa | Buka blokir                  |
+| GET    | `/api/admin/listings`         | Bearer + `admin_dev` | Semua listing (`?status=`)          |
+| POST   | `/api/admin/listings/{id}/takedown` | Bearer + `admin_dev` | Takedown listing              |
+| POST   | `/api/admin/listings/{id}/restore`  | Bearer + `admin_dev` | Pulihkan listing               |
+| GET    | `/api/listings/{id}/availability` | -                | Tanggal yang sudah terpakai           |
+| POST   | `/api/listings/{id}/rentals`  | Bearer + mahasiswa  | Ajukan sewa                           |
+| GET    | `/api/rentals/mine`           | Bearer              | Rental sebagai penyewa/penyedia       |
+| GET    | `/api/rentals/{id}`           | Bearer              | Detail rental + timeline              |
+| POST   | `/api/rentals/{id}/approve`   | Bearer (penyedia)   | Setujui pengajuan                     |
+| POST   | `/api/rentals/{id}/reject`    | Bearer (penyedia)   | Tolak pengajuan                       |
+| POST   | `/api/rentals/{id}/cancel`    | Bearer (peserta)    | Batalkan rental                       |
+| POST   | `/api/rentals/{id}/complete`  | Bearer (penyedia)   | Tandai selesai                        |
+| GET    | `/api/rentals/{id}/agreement/file` | Bearer (peserta) | PDF perjanjian (baca saja)         |
+| GET    | `/api/rentals/{id}/messages`  | Bearer (peserta)    | Riwayat chat (`?after=`)              |
+| POST   | `/api/rentals/{id}/messages`  | Bearer (peserta)    | Kirim chat (fallback REST)            |
+| POST   | `/api/rentals/{id}/ws-ticket` | Bearer (peserta)    | Tiket WebSocket sekali pakai          |
+| GET    | `/api/rentals/{id}/ws`        | Tiket WebSocket     | Koneksi chat realtime                 |
+| GET    | `/api/notifications`          | Bearer              | Notifikasi in-app (`?unread=1`)       |
+| POST   | `/api/notifications/{id}/read`| Bearer              | Tandai notifikasi sudah dibaca        |
 
 ### Register
 
@@ -255,6 +313,142 @@ diverifikasi ulang; `rejected`/`revoked` wajib punya alasan; pengajuan baru bole
 dibuat setelah status sebelumnya `rejected`/`revoked`. Akses file memakai
 `GET /api/ktm/{id}/file` dan hanya diizinkan untuk pemilik akun atau `admin_dev`.
 Setiap verify/reject/revoke dan akses file dicatat di `moderation_actions`.
+
+### Katalog dan listing
+
+Penyedia wajib sudah **terverifikasi KTM** untuk membuat listing. File foto
+disimpan di `LISTING_STORAGE_DIR` (default `backend/data/listings`), database hanya
+menyimpan `storage_key`.
+
+```bash
+# Katalog publik: cari + filter
+curl 'http://localhost:8080/api/listings?q=kamera&category=elektronik&sort=price_asc&limit=20'
+
+# Buat listing
+curl -X POST http://localhost:8080/api/listings \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title":"Kamera Canon EOS 700D",
+    "description":"Termasuk tas dan charger.",
+    "category_id":"<uuid-kategori>",
+    "campus_location_id":"<uuid-lokasi>",
+    "price_per_day":75000,
+    "condition_percent":90
+  }'
+
+# Unggah foto (maks 3, JPEG/PNG, 5 MB)
+curl -X POST http://localhost:8080/api/listings/<id>/photos \
+  -H 'Authorization: Bearer <token>' \
+  -F 'file=@kamera.jpg;type=image/jpeg'
+
+# Blokir tanggal (inklusif)
+curl -X POST http://localhost:8080/api/listings/<id>/blocks \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"start_date":"2026-12-01","end_date":"2026-12-03","reason":"Dipakai sendiri"}'
+
+# Admin takedown / restore
+curl -X POST http://localhost:8080/api/admin/listings/<id>/takedown \
+  -H 'Authorization: Bearer <token-admin>' \
+  -H 'Content-Type: application/json' \
+  -d '{"reason":"Barang tidak sesuai deskripsi"}'
+```
+
+Aturan:
+
+- List publik hanya menampilkan listing `is_active = true` milik penyedia yang KTM-nya
+  masih verified. Data owner dibatasi ke `{id, name}`; email, NIM, dan WhatsApp tidak
+  pernah dikirim.
+- Filter katalog: `q` (judul), `category` (slug), `location` (UUID), `min_price`,
+  `max_price`, `sort` (`newest`, `price_asc`, `price_desc`), `limit` (default 20,
+  maks 60), `offset`.
+- Hapus listing bersifat permanen; jika sudah dipakai transaksi ditolak `409
+  listing_in_use`.
+- Takedown wajib alasan dan dicatat di `moderation_actions`; listing takedown tidak
+  muncul di katalog sampai dipulihkan admin.
+
+### Rental, chat, dan perjanjian
+
+Penyewa wajib sudah terverifikasi KTM. Harga dan `owner_id` selalu diambil dari
+listing oleh trigger database, bukan dari body request. `end_date` inklusif dan
+durasi maksimal 30 hari.
+
+```bash
+# Cek tanggal yang sudah terpakai (blokir + rental approved)
+curl 'http://localhost:8080/api/listings/<listing-id>/availability?from=2026-12-01&to=2026-12-31'
+
+# Ajukan sewa
+curl -X POST http://localhost:8080/api/listings/<listing-id>/rentals \
+  -H 'Authorization: Bearer <token-penyewa>' \
+  -H 'Content-Type: application/json' \
+  -d '{"start_date":"2026-12-01","end_date":"2026-12-03"}'
+
+# Penyedia menyetujui / menolak
+curl -X POST http://localhost:8080/api/rentals/<rental-id>/approve \
+  -H 'Authorization: Bearer <token-penyedia>'
+
+curl -X POST http://localhost:8080/api/rentals/<rental-id>/reject \
+  -H 'Authorization: Bearer <token-penyedia>' \
+  -H 'Content-Type: application/json' \
+  -d '{"reason":"Barang sedang dipakai"}'
+```
+
+Status: `pending -> approved/rejected/cancelled`, `approved -> completed/cancelled`.
+Setiap transisi dicatat di `rental_events` dan membuat notifikasi in-app untuk pihak
+lain. Approval kedua pada tanggal yang sama ditolak `409 date_unavailable`.
+
+Chat memakai **REST untuk riwayat** dan **WebSocket untuk pesan baru**. Ambil tiket
+sekali pakai lebih dulu, lalu buka koneksi (tiket berlaku 60 detik):
+
+```bash
+curl -X POST http://localhost:8080/api/rentals/<rental-id>/ws-ticket \
+  -H 'Authorization: Bearer <token>'
+```
+
+```
+GET ws://localhost:8080/api/rentals/<rental-id>/ws?ticket=<tiket>
+```
+
+Frame yang dikirim client:
+
+```json
+{ "type": "message", "body": "Bisa diambil jam 4 sore?" }
+```
+
+Frame dari server:
+
+```json
+{
+  "type": "message",
+  "message": {
+    "id": "<uuid>",
+    "rental_id": "<uuid>",
+    "sender": { "id": "<uuid>", "name": "Penyewa Demo" },
+    "body": "Bisa diambil jam 4 sore?",
+    "created_at": "2026-11-25T14:13:24+07:00"
+  }
+}
+```
+
+Setelah reconnect, ambil pesan yang terlewat lewat
+`GET /api/rentals/<id>/messages?after=<created_at terakhir>`. Kirim pesan lewat
+`POST /api/rentals/<id>/messages` juga tetap didukung dan ikut dibroadcast ke
+koneksi WebSocket. Chat hanya bisa dikirim saat rental `pending`/`approved`;
+status final bersifat baca saja.
+
+PDF perjanjian bersifat **statis** dan sudah disiapkan di
+`AGREEMENT_PDF_PATH` (default `backend/assets/rental-agreement.pdf`). Tidak ada
+generasi PDF per rental. Peserta rental membuka:
+
+```bash
+curl -X GET http://localhost:8080/api/rentals/<rental-id>/agreement/file \
+  -H 'Authorization: Bearer <token-peserta>' \
+  -o perjanjian.pdf
+```
+
+Server WebSocket memakai satu instance (hub in-memory). Untuk multi-instance,
+tambahkan pub/sub Redis atau `LISTEN/NOTIFY` PostgreSQL.
 
 ### Format error
 
@@ -393,6 +587,8 @@ Kalau backend membalas 401 karena token kedaluwarsa, panggil `logout()`.
 | `CORS_ORIGINS` | `http://localhost:5173,...` | Origin frontend, pisahkan koma       |
 | `DATABASE_URL` | kosong                   | DSN PostgreSQL; kosong = file JSON      |
 | `STORE_PATH`   | `data/users.json`        | File penyimpanan user saat tanpa database |
+| `LISTING_STORAGE_DIR` | `data/listings`    | Direktori foto listing (storage lokal) |
+| `AGREEMENT_PDF_PATH` | `assets/rental-agreement.pdf` | PDF perjanjian statis yang ditampilkan |
 
 Frontend memakai `VITE_API_URL` (opsional). Saat development biarkan kosong karena
 Vite mem-proxy `/api` ke `http://localhost:8080`.

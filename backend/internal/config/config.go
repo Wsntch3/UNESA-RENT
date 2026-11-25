@@ -15,7 +15,11 @@ type Config struct {
 	StorePath     string
 	DatabaseURL   string
 	KTMStorageDir string
-	Env           string // development | production
+	// Foto listing juga disimpan di filesystem, terpisah dari file KTM.
+	ListingStorageDir string
+	// PDF Surat Pernyataan Keamanan yang sudah disiapkan; hanya ditampilkan.
+	AgreementPDFPath string
+	Env              string // development | production
 }
 
 const devSecret = "dev-secret-jangan-dipakai-di-production-ubah-me"
@@ -28,7 +32,9 @@ func Load() (Config, error) {
 		DatabaseURL: envOr("DATABASE_URL", ""),
 		// File KTM disimpan di luar database. Ganti ke Supabase dengan
 		// mengimplementasikan ktm.Storage, bukan mengubah path ini.
-		KTMStorageDir: envOr("KTM_STORAGE_DIR", "data/ktm"),
+		KTMStorageDir:     envOr("KTM_STORAGE_DIR", "data/ktm"),
+		ListingStorageDir: envOr("LISTING_STORAGE_DIR", "data/listings"),
+		AgreementPDFPath:  envOr("AGREEMENT_PDF_PATH", "assets/rental-agreement.pdf"),
 		// Default production: lupa mengisi env tidak boleh membuka secret publik.
 		Env: envOr("APP_ENV", "production"),
 	}
