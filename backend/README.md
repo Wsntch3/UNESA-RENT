@@ -41,6 +41,12 @@ Repositori ini adalah bagian dari monorepo [UNESARENT](../README.md).
 - Graceful shutdown
 - Penyimpanan PostgreSQL (`pgx`) atau JSON atomik dengan permission `0600`
 - Interface `user.Store` untuk memisahkan business logic dari penyimpanan
+- Katalog publik: kategori, lokasi, pencarian judul, filter kategori/harga/lokasi, sort
+- Pengelolaan listing penyedia: create/update/delete, maks 3 foto, blokir tanggal
+- Moderasi admin: takedown/restore listing dengan audit `moderation_actions`
+- Pengajuan sewa, approve/reject/cancel/complete, availability, dan notifikasi in-app
+- Chat rental via WebSocket (riwayat lewat REST) dengan tiket sekali pakai
+- PDF Surat Pernyataan Keamanan statis untuk dibaca peserta rental
 
 ---
 
@@ -53,6 +59,7 @@ Repositori ini adalah bagian dari monorepo [UNESARENT](../README.md).
 | JWT         | `github.com/golang-jwt/jwt/v5`        |
 | Password    | `golang.org/x/crypto/bcrypt`          |
 | Database    | PostgreSQL 17 + `github.com/jackc/pgx/v5` |
+| WebSocket   | `github.com/coder/websocket`          |
 | Logging     | `log/slog`                            |
 | Storage     | PostgreSQL, fallback file JSON        |
 
@@ -77,9 +84,23 @@ backend/
 │   ├── httpapi/
 │   │   ├── auth_handler.go
 │   │   ├── ktm_handler.go
+│   │   ├── listing_handler.go
+│   │   ├── rental_handler.go
+│   │   ├── rental_chat_hub.go
 │   │   ├── middleware.go
 │   │   ├── respond.go
 │   │   └── router.go
+│   ├── catalog/
+│   │   ├── model.go
+│   │   ├── service.go
+│   │   ├── storage.go
+│   │   ├── store.go
+│   │   └── store_postgres.go
+│   ├── rental/
+│   │   ├── model.go
+│   │   ├── service.go
+│   │   ├── store.go
+│   │   └── store_postgres.go
 │   ├── ktm/
 │   │   ├── model.go
 │   │   ├── service.go
@@ -103,6 +124,8 @@ backend/
 | `internal/auth`      | Penerbitan/verifikasi JWT dan hashing password        |
 | `internal/httpapi`   | Router, handler, middleware, dan format response      |
 | `internal/ktm`       | Aturan verifikasi KTM, storage file, dan akses file   |
+| `internal/catalog`   | Listing, foto, blokir tanggal, katalog, dan moderasi  |
+| `internal/rental`    | Rental, transisi status, notifikasi, chat, perjanjian |
 | `internal/user`      | Model, validasi, business logic, dan penyimpanan user |
 
 ---
@@ -175,6 +198,8 @@ variable yang sudah di-set tidak ditimpa oleh `.env`.
 | `DATABASE_URL`    | kosong                      | Tidak | DSN PostgreSQL; kosong = file JSON   |
 | `STORE_PATH`      | `data/users.json`           | Tidak | File JSON saat `DATABASE_URL` kosong |
 | `KTM_STORAGE_DIR` | `data/ktm`                  | Tidak | Direktori file KTM (storage lokal)   |
+| `LISTING_STORAGE_DIR` | `data/listings`         | Tidak | Direktori foto listing (storage lokal) |
+| `AGREEMENT_PDF_PATH` | `assets/rental-agreement.pdf` | Tidak | PDF perjanjian statis yang ditampilkan |
 
 `JWT_TTL` memakai format durasi Go, misalnya `30m`, `12h`, atau `24h`. Format seperti
 `7d` tidak didukung.
@@ -207,6 +232,38 @@ Dokumentasi request dan response lengkap tersedia di [README utama](../README.md
 | POST   | `/api/admin/ktm/{id}/verify`  | Bearer | `admin_dev`  | Setujui pengajuan                |
 | POST   | `/api/admin/ktm/{id}/reject`  | Bearer | `admin_dev`  | Tolak pengajuan                  |
 | POST   | `/api/admin/ktm/{id}/revoke`  | Bearer | `admin_dev`  | Cabut verifikasi                 |
+| GET    | `/api/categories`             | Tidak  | -            | Kategori aktif                   |
+| GET    | `/api/campus-locations`       | Tidak  | -            | Lokasi serah-terima              |
+| GET    | `/api/listings`               | Tidak  | -            | Katalog + pencarian + filter     |
+| GET    | `/api/listings/{id}`          | Tidak  | -            | Detail listing aktif             |
+| GET    | `/api/listings/{id}/photos/{photoID}/file` | Tidak | -   | File foto listing                |
+| GET    | `/api/listings/mine`          | Bearer | `mahasiswa`  | Listing milik sendiri            |
+| POST   | `/api/listings`               | Bearer | `mahasiswa`  | Buat listing (wajib KTM verified)|
+| PUT    | `/api/listings/{id}`          | Bearer | `mahasiswa`  | Ubah listing                     |
+| DELETE | `/api/listings/{id}`          | Bearer | `mahasiswa`  | Hapus listing                    |
+| POST   | `/api/listings/{id}/photos`   | Bearer | `mahasiswa`  | Unggah foto (maks 3)             |
+| DELETE | `/api/listings/{id}/photos/{photoID}` | Bearer | `mahasiswa` | Hapus foto                  |
+| GET    | `/api/listings/{id}/blocks`   | Bearer | `mahasiswa`  | Daftar blokir tanggal            |
+| POST   | `/api/listings/{id}/blocks`   | Bearer | `mahasiswa`  | Tambah blokir tanggal            |
+| DELETE | `/api/listings/{id}/blocks/{blockID}` | Bearer | `mahasiswa` | Hapus blokir              |
+| GET    | `/api/admin/listings`         | Bearer | `admin_dev`  | Semua listing (`?status=`)       |
+| POST   | `/api/admin/listings/{id}/takedown` | Bearer | `admin_dev` | Takedown listing            |
+| POST   | `/api/admin/listings/{id}/restore`  | Bearer | `admin_dev` | Pulihkan listing             |
+| GET    | `/api/listings/{id}/availability` | Tidak | -         | Tanggal terpakai             |
+| POST   | `/api/listings/{id}/rentals`  | Bearer | `mahasiswa`  | Ajukan sewa                  |
+| GET    | `/api/rentals/mine`           | Bearer | semua        | Rental milik user            |
+| GET    | `/api/rentals/{id}`           | Bearer | peserta      | Detail rental + events       |
+| POST   | `/api/rentals/{id}/approve`   | Bearer | penyedia     | Setujui pengajuan            |
+| POST   | `/api/rentals/{id}/reject`    | Bearer | penyedia     | Tolak pengajuan              |
+| POST   | `/api/rentals/{id}/cancel`    | Bearer | peserta      | Batalkan rental              |
+| POST   | `/api/rentals/{id}/complete`  | Bearer | penyedia     | Tandai selesai               |
+| GET    | `/api/rentals/{id}/agreement/file` | Bearer | peserta | PDF perjanjian (baca saja)   |
+| GET    | `/api/rentals/{id}/messages`  | Bearer | peserta      | Riwayat chat                 |
+| POST   | `/api/rentals/{id}/messages`  | Bearer | peserta      | Kirim chat (fallback REST)   |
+| POST   | `/api/rentals/{id}/ws-ticket` | Bearer | peserta      | Tiket WebSocket sekali pakai |
+| GET    | `/api/rentals/{id}/ws`        | Tiket  | peserta      | Koneksi chat realtime        |
+| GET    | `/api/notifications`          | Bearer | semua        | Notifikasi in-app            |
+| POST   | `/api/notifications/{id}/read`| Bearer | pemilik      | Tandai sudah dibaca          |
 
 Contoh register (semua field wajib; `nim` 11 digit format `AA FF PPP J UUU`, dengan
 `FF` = kode fakultas FT `05` dan `PPP` = kode prodi):
@@ -272,6 +329,53 @@ Aturan penting:
 - Kode error: `ktm_pending_exists`/`ktm_already_verified` (409),
   `ktm_invalid_transition` (409), `ktm_not_eligible`/`forbidden` (403),
   `file_too_large` (413), `ktm_file_purged` (410).
+
+### Katalog dan listing
+
+Implementasi ada di `internal/catalog`. Aturan utama:
+
+- Create listing mensyaratkan `is_ktm_verified(owner_id)`; trigger database tetap
+  menjadi penjaga terakhir dan error-nya dipetakan ke `403 ktm_not_verified`.
+- Validasi service mencerminkan constraint DB: judul 3-120 karakter, deskripsi
+  maks 2000, harga 1-10.000.000, kondisi 1-100. Pelanggaran dibalas `422
+  validation_error` dengan `fields`.
+- Foto maksimal 3 per listing, `image/jpeg` atau `image/png`, maks 5 MB. Posisi 1-3
+  diisi slot kosong terkecil. File disimpan lewat `catalog.Storage`; jika insert
+  database gagal, file dihapus kembali.
+- Blokir tanggal disimpan sebagai `DATERANGE` inklusif. Overlap dengan blokir lain
+  atau rental `approved` ditolak database dan dipetakan ke `409 block_overlap`.
+- Katalog publik hanya menampilkan listing aktif milik penyedia yang masih verified.
+  Email, NIM, dan nomor WhatsApp tidak pernah ikut response.
+- Takedown/restore hanya untuk `admin_dev`, wajib alasan saat takedown, dan dicatat
+  di `moderation_actions`.
+
+Kode error tambahan: `listing_not_found` (404), `ktm_not_verified`/`forbidden`
+(403), `photo_limit`/`listing_in_use`/`block_overlap`/`listing_invalid_transition`
+(409), `file_too_large` (413).
+
+### Rental, chat, dan perjanjian
+
+Implementasi ada di `internal/rental` dan `internal/httpapi/rental_handler.go`.
+Migration chat ada di `0009_rental_chat`; tanpa migration ini endpoint chat gagal.
+
+- Submit hanya untuk mahasiswa KTM verified, bukan pemilik listing, tanggal tidak
+  lampau, dan durasi maksimal 30 hari. Harga/owner diisi trigger database.
+- Approve menolak overlap rental `approved` (`409 date_unavailable`) dan tanggal
+  yang diblokir penyedia (`409 dates_blocked`). Transisi status final tidak bisa
+  diubah lagi.
+- Setiap transisi menulis `rental_events` dan `notifications` untuk pihak lain.
+- Chat: `POST /ws-ticket` menerbitkan tiket 32 byte sekali pakai selama 60 detik;
+  hub WebSocket in-memory per rental. Riwayat dan catch-up memakai
+  `GET /messages?after=<RFC3339>`. Pesan 1-2000 karakter, rate limit 30/menit per
+  koneksi. Status `rejected`/`cancelled`/`completed` hanya boleh dibaca.
+- Frame client `{"type":"message","body":"..."}`; frame server
+  `{"type":"message","message":{...}}` atau `{"type":"error","code":"...","message":"..."}`.
+- `GET /agreement/file` menyajikan PDF statis dari `AGREEMENT_PDF_PATH` hanya untuk
+  peserta rental. Tidak ada pembuatan PDF dan `security_letters` tidak diisi.
+- Server mematikan `ReadTimeout`/`WriteTimeout` karena koneksi WebSocket panjang;
+  `ReadHeaderTimeout` tetap aktif.
+- Hub hanya cocok untuk **satu instance**. Multi-instance perlu Redis pub/sub atau
+  PostgreSQL `LISTEN/NOTIFY`.
 
 ---
 

@@ -15,8 +15,8 @@ Schema dan migration PostgreSQL 17 untuk UNESARENT.
 ---
 
 > **Status:** schema database lengkap untuk MVP Listing-First, termasuk verifikasi KTM
-> (`0005`), hardening (`0006`), role admin tunggal (`0007`), dan governance template
-> surat (`0008`). Backend sudah memakai PostgreSQL (`pgx`) saat `DATABASE_URL` diisi
+> (`0005`), hardening (`0006`), role admin tunggal (`0007`), governance template
+> surat (`0008`), dan chat rental (`0009`). Backend sudah memakai PostgreSQL (`pgx`) saat `DATABASE_URL` diisi
 > dan otomatis fallback ke file JSON jika tidak.
 
 ---
@@ -59,7 +59,9 @@ postgres/
 │   ├── 0007_single_admin.up.sql
 │   ├── 0007_single_admin.down.sql
 │   ├── 0008_letter_governance.up.sql
-│   └── 0008_letter_governance.down.sql
+│   ├── 0008_letter_governance.down.sql
+│   ├── 0009_rental_chat.up.sql
+│   └── 0009_rental_chat.down.sql
 ├── seed/
 │   └── dev_seed.sql
 ├── .env.example
@@ -248,9 +250,12 @@ menyertakan `takedown_by`, `takedown_reason`, dan `takedown_at`.
 | `letter_templates` | `version`, `body`, `is_active`, `approval_reference` | Template surat; maksimal satu aktif |
 | `rentals` | `start_date`, `end_date`, `total_days`, `total_price`, `status` | Pengajuan/transaksi sewa |
 | `rental_events` | `from_status`, `to_status`, `actor_id` | Timeline untuk sengketa |
-| `security_letters` | `rental_id`, `template_id`, `pdf_storage_key` | Metadata PDF Surat Pernyataan |
+| `rental_messages` | `rental_id`, `sender_id`, `body`, `created_at` | Chat internal per rental, append-only |
+| `security_letters` | `rental_id`, `template_id`, `pdf_storage_key` | Metadata PDF Surat Pernyataan (belum dipakai backend) |
 
 Status rental: `pending`, `approved`, `rejected`, `cancelled`, `completed`.
+Pesan chat dibatasi 1-2000 karakter dan hanya dapat dikirim saat rental
+`pending`/`approved`; aturan status ditegakkan backend, bukan trigger.
 
 - `end_date` **inklusif**. `total_days = end_date - start_date + 1`.
 - `total_price = total_days * price_per_day_snapshot` dihitung database.
@@ -330,6 +335,14 @@ erDiagram
   - `admin.ops@unesarent.local` / `AdminOps123!`
 - Akun mahasiswa demo:
   - `mahasiswa@unesarent.local` / `Mahasiswa123!` (NIM sintetis `24051204999`)
+  - `mahasiswa2@unesarent.local` / `Mahasiswa123!` (NIM sintetis `24051204998`)
+- Verifikasi KTM untuk kedua mahasiswa demo, sehingga langsung bisa membuat listing
+  dan mengajukan rental (baris `ktm_verifications` tanpa file fisik; endpoint file
+  KTM akan 404)
+- Empat listing contoh milik mahasiswa demo (tanpa foto) dengan UUID tetap agar seed
+  idempotent
+- Dua rental milik `mahasiswa2`: satu `approved` (kamera) dan satu `pending` (tenda)
+- Dua pesan chat contoh pada rental `approved`
 - Template Surat Pernyataan Keamanan `v1` dengan teks "Template resmi UNESA Rent"
 
 > **Penting:** seed hanya memuat kode prodi yang sudah diketahui (`120`). Tambahkan
