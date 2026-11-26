@@ -316,13 +316,6 @@ erDiagram
 | NFR-03 file | database hanya menyimpan `storage_key` dan metadata |
 | BR-03 tanpa payment | **tidak ada tabel payment/escrow** (lihat marker di `0003_rentals.up.sql`) |
 
-> **MARKER: EVALUASI PAYMENT.** Sesuai BR-03, sistem hanya mencatat transaksi.
-> Pembayaran dilakukan COD/transfer manual. Jika versi berikutnya mengintegrasikan
-> payment gateway/escrow, tambahkan tabel pembayaran baru dan jangan mengubah
-> `rentals.total_price` menjadi status pembayaran.
-
----
-
 ## Seed development
 
 `seed/dev_seed.sql` mengisi:
@@ -344,18 +337,6 @@ erDiagram
 - Dua rental milik `mahasiswa2`: satu `approved` (kamera) dan satu `pending` (tenda)
 - Dua pesan chat contoh pada rental `approved`
 - Template Surat Pernyataan Keamanan `v1` dengan teks "Template resmi UNESA Rent"
-
-> **Penting:** seed hanya memuat kode prodi yang sudah diketahui (`120`). Tambahkan
-> prodi FT lain setelah daftar resmi diperoleh; jangan menebak kode karena trigger
-> memakainya untuk validasi NIM. NIM demo dibuat sintetis dengan format
-> `AA FF PPP J UUU`; NIM asli yang formatnya cocok juga akan diterima.
->
-> Template `v1` sengaja **belum** mengklaim pengesahan BEM karena referensi persetujuan
-> offline belum ada. Setelah approval diperoleh, buat versi baru dan isi
-> `approval_reference`, `approved_by_name`, `approved_offline_at`, lalu sesuaikan teks.
-> Password akun seed hanya untuk development; jangan dipakai di production.
-
----
 
 ## Koneksi
 
@@ -381,35 +362,6 @@ Ganti password sebelum dipakai di luar development.
 > `docker compose up -d`, lalu sesuaikan port pada `DATABASE_URL` backend.
 > Migration di dalam container tetap memakai port `5432`.
 
----
-
-## Integrasi backend
-
-Sudah diimplementasikan di backend:
-
-1. Driver `github.com/jackc/pgx/v5` + `pgxpool` (`backend/internal/db`).
-2. `DATABASE_URL` dibaca dari environment; kosong berarti fallback ke file JSON.
-3. `user.PostgresStore` mengimplementasikan `user.Store` untuk tabel `users`.
-4. ID memakai UUID dari `gen_random_uuid()`.
-5. Claim JWT `role` + middleware `RequireRole("admin_dev")`; role/status terbaru
-   dibaca ulang dari database pada setiap request.
-6. Error constraint dipetakan ke `ErrEmailTaken`, `ErrNIMTaken`, `ErrInvalidNIM`.
-
-Aturan yang masih harus dijaga saat endpoint berikutnya dibuat:
-
-- Jangan pernah memilih `user_contacts` di query katalog, daftar rental, atau respons
-  publik. Hanya endpoint detail rental milik peserta dengan status `approved` yang
-  boleh mengembalikan nomor WhatsApp.
-- File KTM hanya boleh diakses pemilik dan `admin_dev`; endpoint backend memeriksa
-  kepemilikan/role sebelum mengalirkan file, bukan mengandalkan URL publik.
-- Simpan foto dan file KTM di object storage; database hanya menyimpan `storage_key`.
-  Implementasi dev memakai filesystem lokal, produksi dapat memakai Supabase Storage
-  dengan kontrak `ktm.Storage` yang sama.
-- Tulis `rental_events` dan `moderation_actions` dari application layer dengan
-  `actor_id` pengguna yang melakukan aksi.
-- Jalankan integration test terhadap database nyata (Docker) sebelum merge.
-
----
 
 ## Troubleshooting
 
@@ -422,15 +374,3 @@ Aturan yang masih harus dijaga saat endpoint berikutnya dibuat:
 | Perubahan SQL tidak diterapkan | Init script hanya jalan pada volume kosong; gunakan migration |
 | Data hilang setelah restart | Jangan pakai `down -v`; named volume menyimpan data |
 | Password authentication failed | Samakan kredensial `.env` dengan `DATABASE_URL` |
-
----
-
-## Catatan keamanan
-
-- Password di-hash bcrypt; seed admin memakai `pgcrypto` agar kompatibel dengan Go.
-- Nomor WhatsApp disimpan di tabel terpisah dan tidak boleh ikut `SELECT users.*`.
-- `user_contacts.whatsapp_e164` belum dienkripsi. Untuk production, pertimbangkan
-  enkripsi at-rest atau secret manager.
-- `moderation_actions` adalah audit trail; jangan menghapus barisnya.
-- Batasi akses database dan gunakan role khusus aplikasi (bukan superuser) di production.
-- Jangan commit file `.env` yang berisi kredensial asli.
