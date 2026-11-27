@@ -59,9 +59,12 @@ func main() {
 	}
 
 	var mailer email.Sender
-	if cfg.SMTPHost == "" {
+	if cfg.BrevoAPIKey != "" {
+		mailer = email.NewBrevoAPISender(cfg.BrevoAPIKey, cfg.SMTPFrom)
+		slog.Info("pengirim email: Brevo REST API")
+	} else if cfg.SMTPHost == "" {
 		if cfg.Env != "development" {
-			slog.Error("SMTP_HOST wajib di-set pada production")
+			slog.Error("SMTP_HOST atau BREVO_APIKEY wajib di-set pada production")
 			os.Exit(1)
 		}
 		mailer = email.DevSender{}

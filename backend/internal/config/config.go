@@ -34,6 +34,9 @@ type Config struct {
 	SMTPUser string
 	SMTPPass string
 	SMTPFrom string
+	// BREVO_APIKEY mengaktifkan pengiriman lewat REST API (HTTPS) sebagai
+	// alternatif bila port SMTP diblokir platform deploy.
+	BrevoAPIKey string
 
 	OTPPepper             []byte
 	OTPTTL                time.Duration
@@ -81,6 +84,7 @@ func Load() (Config, error) {
 		SMTPUser:              envOr("SMTP_USER", ""),
 		SMTPPass:              envOr("SMTP_PASS", ""),
 		SMTPFrom:              envOr("SMTP_FROM", ""),
+		BrevoAPIKey:           envOr("BREVO_APIKEY", envOr("BREVO_API_KEY", "")),
 		OTPTTL:                envDurationOr("OTP_TTL", 10*time.Minute),
 		OTPMaxAttempts:        envIntOr("OTP_MAX_ATTEMPTS", 5),
 		RegistrationTicketTTL: envDurationOr("REGISTRATION_TICKET_TTL", 15*time.Minute),
@@ -147,8 +151,8 @@ func Load() (Config, error) {
 		if cfg.PublicBaseURL == "" {
 			return Config{}, fmt.Errorf("PUBLIC_BASE_URL wajib di-set pada production")
 		}
-		if cfg.SMTPHost == "" || cfg.SMTPFrom == "" {
-			return Config{}, fmt.Errorf("SMTP_HOST dan SMTP_FROM wajib di-set pada production")
+		if cfg.SMTPFrom == "" || (cfg.SMTPHost == "" && cfg.BrevoAPIKey == "") {
+			return Config{}, fmt.Errorf("SMTP_FROM wajib di-set dan salah satu SMTP_HOST atau BREVO_APIKEY wajib diisi pada production")
 		}
 		for _, origin := range cfg.CORSOrigins {
 			if strings.Contains(origin, "localhost") || strings.Contains(origin, "127.0.0.1") {
