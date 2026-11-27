@@ -10,3 +10,7 @@ backend/.env
 postgres/.env
 *.log
 .DS_Store
+
+# Dokumen internal dan hasil desain UI reference (bukan kebutuhan build/deploy)
+docs/
+UI/
