@@ -25,7 +25,6 @@ const (
 	maxMessageLength = 2000
 )
 
-// Jakarta tidak memakai DST, jadi fixed zone cukup dan tidak bergantung tzdata.
 var jakarta = time.FixedZone("WIB", 7*60*60)
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
@@ -41,7 +40,6 @@ func NewService(store Store) *Service {
 	return &Service{store: store, requireReturn: true}
 }
 
-// WithCrypto memasang enkripsi chat dan penyimpanan dokumen.
 func (s *Service) WithCrypto(cipher *chatcrypto.Cipher, files Storage) *Service {
 	s.cipher, s.files = cipher, files
 	return s
@@ -187,7 +185,6 @@ func (s *Service) Get(ctx context.Context, userID, id string) (Rental, error) {
 	return s.decorate(rental, userID), nil
 }
 
-// AdminGet membaca rental tanpa memeriksa kepesertaan.
 func (s *Service) AdminGet(ctx context.Context, id string) (Rental, error) {
 	rental, err := s.store.Get(ctx, id)
 	if err != nil {
@@ -350,7 +347,6 @@ func (s *Service) MarkNotificationRead(ctx context.Context, userID, id string) e
 	return s.store.MarkNotificationRead(ctx, userID, id)
 }
 
-// ChatAccess memastikan user adalah peserta rental. Dipakai saat menerbitkan tiket WS.
 func (s *Service) ChatAccess(ctx context.Context, userID, rentalID string) error {
 	_, err := s.loadForParticipant(ctx, userID, rentalID)
 	return err
@@ -411,14 +407,11 @@ func (s *Service) SendMessage(ctx context.Context, userID, rentalID, body string
 	return s.store.SaveMessage(ctx, rental.ID, userID, ciphertext, nonce, version, utf8.RuneCountInString(body), messageHash(body))
 }
 
-// AgreementAccess memastikan user adalah peserta rental sebelum membaca PDF.
 func (s *Service) AgreementAccess(ctx context.Context, userID, rentalID string) error {
 	_, err := s.loadForParticipant(ctx, userID, rentalID)
 	return err
 }
 
-// AgreementFile mengembalikan surat perjanjian rental. Dokumen dibuat sekali
-// saat rental disetujui; untuk data lama dibuat ulang secara on-demand.
 func (s *Service) AgreementFile(ctx context.Context, userID, rentalID string) (Document, []byte, error) {
 	rentalItem, err := s.loadForParticipant(ctx, userID, rentalID)
 	if err != nil {
@@ -582,7 +575,6 @@ func todayWIB() time.Time {
 	return time.Date(now.Year(), now.Month(), now.Day(), 0, 0, 0, 0, jakarta)
 }
 
-// prepareAgreement membuat state COD dan perjanjian PDF saat rental disetujui.
 func (s *Service) prepareAgreement(ctx context.Context, rental Rental) error {
 	if s.files == nil {
 		return nil
@@ -793,7 +785,7 @@ func (s *Service) Settle(ctx context.Context, userID, rentalID string, in CODSet
 	if s.files == nil {
 		return Document{}, fmt.Errorf("penyimpanan dokumen belum dikonfigurasi")
 	}
-	// Kuitansi dihasilkan sekali setelah pembayaran dicatat agar isinya final.
+
 	key, err := newDocumentKey(rentalID, ".pdf")
 	if err != nil {
 		return Document{}, err

@@ -11,7 +11,6 @@ import (
 	"unesarent/backend/internal/ktm"
 )
 
-// maxMultipartOverhead memberi ruang untuk boundary dan header multipart.
 const maxMultipartOverhead = 1 << 20
 
 type KTMHandler struct {
@@ -22,7 +21,6 @@ func NewKTMHandler(svc *ktm.Service) *KTMHandler {
 	return &KTMHandler{svc: svc}
 }
 
-// Submit menerima multipart/form-data dengan field "file".
 func (h *KTMHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	r.Body = http.MaxBytesReader(w, r.Body, ktm.MaxUploadBytes+maxMultipartOverhead)
 
@@ -62,7 +60,6 @@ func (h *KTMHandler) Submit(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]any{"submission": sub})
 }
 
-// Mine mengembalikan riwayat pengajuan milik user yang sedang login.
 func (h *KTMHandler) Mine(w http.ResponseWriter, r *http.Request) {
 	list, verified, err := h.svc.Mine(r.Context(), userIDFromContext(r.Context()), queryInt(r, "limit", 0))
 	if err != nil {
@@ -76,7 +73,6 @@ func (h *KTMHandler) Mine(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// AdminList menampilkan antrean verifikasi untuk admin_dev.
 func (h *KTMHandler) AdminList(w http.ResponseWriter, r *http.Request) {
 	status := strings.TrimSpace(strings.ToLower(r.URL.Query().Get("status")))
 	if status == "" {
@@ -102,7 +98,6 @@ func (h *KTMHandler) AdminList(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
-// Verify memerlukan body {"confirm_nim": true}.
 func (h *KTMHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		ConfirmNIM bool `json:"confirm_nim"`
@@ -121,7 +116,6 @@ func (h *KTMHandler) Verify(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"submission": sub})
 }
 
-// Reject memerlukan body {"reason": "..."}.
 func (h *KTMHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Reason string `json:"reason"`
@@ -140,7 +134,6 @@ func (h *KTMHandler) Reject(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"submission": sub})
 }
 
-// Revoke memerlukan body {"reason": "..."}.
 func (h *KTMHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	var req struct {
 		Reason string `json:"reason"`
@@ -159,7 +152,6 @@ func (h *KTMHandler) Revoke(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"submission": sub})
 }
 
-// File mengalirkan file KTM untuk pemilik akun atau admin_dev.
 func (h *KTMHandler) File(w http.ResponseWriter, r *http.Request) {
 	sub, file, err := h.svc.File(
 		r.Context(),

@@ -16,14 +16,12 @@ var (
 	ErrFileNotFound    = errors.New("file dokumen tidak ditemukan")
 )
 
-// Storage menyimpan dokumen rental privat.
 type Storage interface {
 	Save(ctx context.Context, key string, data []byte) error
 	Open(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 }
 
-// LocalStorage hanya untuk development. Produksi memakai Supabase Storage.
 type LocalStorage struct {
 	dir string
 }

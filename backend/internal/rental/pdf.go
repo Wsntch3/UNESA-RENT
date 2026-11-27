@@ -9,7 +9,6 @@ import (
 	"github.com/go-pdf/fpdf"
 )
 
-// latin1 mengganti karakter di luar Latin-1 karena core font fpdf tidak UTF-8.
 func latin1(raw string) string {
 	return strings.Map(func(r rune) rune {
 		if r <= 255 {

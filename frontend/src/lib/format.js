@@ -30,7 +30,7 @@ export function formatRupiah(value) {
   return rupiah.format(n).replace(/\u00a0/g, ' ')
 }
 
-/** Parse "YYYY-MM-DD" as a local date (avoids UTC timezone shift). */
+
 export function parseDateOnly(value) {
   if (!value) return null
   const match = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(value))

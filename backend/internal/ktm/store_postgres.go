@@ -18,7 +18,6 @@ func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
 	return &PostgresStore{pool: pool}
 }
 
-// Urutan kolom HARUS sama dengan urutan Scan di scanSubmission.
 const submissionColumns = `
 	k.id::text,
 	k.user_id::text,
@@ -238,7 +237,6 @@ func scanSubmission(row pgx.Row) (Submission, error) {
 	return sub, nil
 }
 
-// mapPostgresError menerjemahkan constraint/trigger PostgreSQL menjadi error domain.
 func mapPostgresError(err error) error {
 	if err == nil {
 		return nil
@@ -253,11 +251,11 @@ func mapPostgresError(err error) error {
 	}
 
 	switch pgErr.Code {
-	case "23505": // unique_violation
+	case "23505":
 		if pgErr.ConstraintName == "ktm_one_pending_per_user" {
 			return ErrPendingExists
 		}
-	case "23514": // check_violation atau RAISE dari trigger
+	case "23514":
 		switch pgErr.ConstraintName {
 		case "users_nim_format", "users_nim_prodi", "users_mahasiswa_nim_required":
 			return ErrIneligible
@@ -272,7 +270,7 @@ func mapPostgresError(err error) error {
 		case strings.Contains(pgErr.Message, "transisi status"):
 			return ErrInvalidTransition
 		}
-	case "22P02": // invalid_text_representation, mis. id bukan UUID
+	case "22P02":
 		return ErrNotFound
 	}
 

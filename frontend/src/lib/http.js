@@ -113,7 +113,7 @@ export async function fetchBlobUrl(path) {
   return URL.createObjectURL(blob)
 }
 
-/** POST JSON yang mengembalikan berkas; caller harus mencabut URL blob setelah dipakai. */
+
 export async function postBlobUrl(path, body) {
   const token = getToken()
   let response
@@ -135,7 +135,7 @@ export async function postBlobUrl(path, body) {
   return URL.createObjectURL(blob)
 }
 
-/** Unduh URL blob lalu cabut URL tersebut setelah sempat dipakai browser. */
+
 export function saveBlobUrl(url, filename) {
   const link = document.createElement('a')
   link.href = url
@@ -146,7 +146,7 @@ export function saveBlobUrl(url, filename) {
   setTimeout(() => URL.revokeObjectURL(url), 15000)
 }
 
-/** Build a WebSocket URL for a backend path, honouring VITE_API_URL. */
+
 export function wsUrl(path) {
   if (/^https?:\/\//i.test(BASE_URL)) {
     const base = new URL(BASE_URL)

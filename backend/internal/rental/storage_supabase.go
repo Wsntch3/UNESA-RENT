@@ -10,7 +10,6 @@ import (
 	"unesarent/backend/internal/objectstore"
 )
 
-// SupabaseStorage menyimpan dokumen rental privat di Supabase Storage.
 type SupabaseStorage struct {
 	client *objectstore.Supabase
 }

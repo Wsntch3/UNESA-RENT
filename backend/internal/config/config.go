@@ -16,13 +16,13 @@ type Config struct {
 	StorePath     string
 	DatabaseURL   string
 	KTMStorageDir string
-	// Foto listing juga disimpan di filesystem, terpisah dari file KTM.
+
 	ListingStorageDir string
-	// PDF Surat Pernyataan Keamanan yang sudah disiapkan; hanya ditampilkan.
+
 	AgreementPDFPath string
-	// Dokumen rental privat (perjanjian, bukti COD, kuitansi).
+
 	RentalDocumentsDir string
-	Env                string // development | production
+	Env                string
 
 	PublicBaseURL         string
 	AllowedStudentDomains []string
@@ -34,8 +34,7 @@ type Config struct {
 	SMTPUser string
 	SMTPPass string
 	SMTPFrom string
-	// BREVO_APIKEY mengaktifkan pengiriman lewat REST API (HTTPS) sebagai
-	// alternatif bila port SMTP diblokir platform deploy.
+
 	BrevoAPIKey string
 
 	OTPPepper             []byte
@@ -45,7 +44,7 @@ type Config struct {
 
 	TrustedProxy bool
 
-	StorageDriver      string // "local" | "supabase"
+	StorageDriver      string
 	SupabaseURL        string
 	SupabaseServiceKey string
 	SupabaseBucket     string
@@ -58,8 +57,6 @@ type Config struct {
 
 const devSecret = "dev-secret-jangan-dipakai-di-production-ubah-me"
 
-// devChatKey adalah kunci AES-256 contoh untuk development saja (32 byte).
-// Nilai ini TIDAK boleh dipakai di produksi; produksi wajib mengisi CHAT_ENC_KEYS.
 const devChatKey = "ZGV2LWNoYXQtZW5jcnlwdGlvbi1rZXktMzJieXRlcyE="
 
 func Load() (Config, error) {
@@ -68,13 +65,12 @@ func Load() (Config, error) {
 		TokenTTL:    envDurationOr("JWT_TTL", 24*time.Hour),
 		StorePath:   envOr("STORE_PATH", "data/users.json"),
 		DatabaseURL: envOr("DATABASE_URL", ""),
-		// File KTM disimpan di luar database. Ganti ke Supabase dengan
-		// mengimplementasikan ktm.Storage, bukan mengubah path ini.
+
 		KTMStorageDir:      envOr("KTM_STORAGE_DIR", "data/ktm"),
 		ListingStorageDir:  envOr("LISTING_STORAGE_DIR", "data/listings"),
 		AgreementPDFPath:   envOr("AGREEMENT_PDF_PATH", "assets/rental-agreement.pdf"),
 		RentalDocumentsDir: envOr("RENTAL_DOCUMENTS_DIR", "data/rental-documents"),
-		// Default production: lupa mengisi env tidak boleh membuka secret publik.
+
 		Env: envOr("APP_ENV", "production"),
 
 		PublicBaseURL:         envOr("PUBLIC_BASE_URL", ""),
@@ -112,7 +108,7 @@ func Load() (Config, error) {
 	cfg.AdminEmails = splitList(envOr("ADMIN_EMAILS", ""))
 
 	if cfg.Env == "production" {
-		// Nilai default yang aman untuk deployment di belakang proxy.
+
 		if _, set := os.LookupEnv("ADMIN_LOGIN_OTP"); !set {
 			cfg.AdminLoginOTP = true
 		}
@@ -201,8 +197,6 @@ func envOr(key, fallback string) string {
 	return fallback
 }
 
-// envAddr mendukung APP_ADDR eksplisit dan PORT yang disuntik platform
-// seperti Render. Render mengharapkan aplikasi mendengarkan di PORT tersebut.
 func envAddr() string {
 	if addr := strings.TrimSpace(os.Getenv("APP_ADDR")); addr != "" {
 		return addr

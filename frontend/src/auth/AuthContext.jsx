@@ -43,7 +43,7 @@ export function AuthProvider({ children }) {
     return () => controller.abort()
   }, [])
 
-  // Status verifikasi KTM hanya relevan untuk mahasiswa.
+  
   useEffect(() => {
     if (status !== 'authenticated' || user?.role !== 'mahasiswa') {
       setKtm(null)
@@ -86,7 +86,7 @@ export function AuthProvider({ children }) {
       setError(null)
       try {
         const data = await authApi.login(credentials)
-        // Login admin memerlukan OTP: jangan simpan sesi sebelum kode diverifikasi.
+        
         if (data.otp_required) return data
         applySession(data)
         return data.user

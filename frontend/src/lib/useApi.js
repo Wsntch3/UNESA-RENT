@@ -1,9 +1,9 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 
-/**
- * Small data-fetching helper: runs `loader` whenever `deps` change.
- * `reload()` re-runs it manually.
- */
+
+
+
+
 export function useApi(loader, deps = []) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -34,7 +34,7 @@ export function useApi(loader, deps = []) {
     return () => {
       alive = false
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    
   }, [...deps, nonce])
 
   const reload = useCallback(() => setNonce((n) => n + 1), [])

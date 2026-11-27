@@ -24,8 +24,6 @@ const (
 	roleKey   ctxKey = "user_role"
 )
 
-// AuthStateReader dipakai RequireAuth untuk membaca role/status terbaru dari storage.
-// user.Store (PostgresStore dan MemoryStore) otomatis memenuhinya.
 type AuthStateReader interface {
 	FindAuthState(ctx context.Context, id string) (user.AuthState, error)
 }
@@ -67,7 +65,6 @@ func (r *statusRecorder) WriteHeader(status int) {
 	r.ResponseWriter.WriteHeader(status)
 }
 
-// Hijack wajib diteruskan agar upgrade WebSocket bisa melewati Logger.
 func (r *statusRecorder) Hijack() (net.Conn, *bufio.ReadWriter, error) {
 	hijacker, ok := r.ResponseWriter.(http.Hijacker)
 	if !ok {
@@ -149,13 +146,12 @@ func RequireAuth(tokens *auth.TokenIssuer, states AuthStateReader) func(http.Han
 			}
 
 			ctx := context.WithValue(r.Context(), userIDKey, claims.Subject)
-			ctx = context.WithValue(ctx, roleKey, string(state.Role)) // role dari DB, bukan dari token
+			ctx = context.WithValue(ctx, roleKey, string(state.Role))
 			next.ServeHTTP(w, r.WithContext(ctx))
 		})
 	}
 }
 
-// RequireRole membatasi endpoint ke role tertentu. Pasang setelah RequireAuth.
 func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	allowed := make(map[string]struct{}, len(roles))
 	for _, role := range roles {
@@ -173,8 +169,6 @@ func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	}
 }
 
-// clientIP mengembalikan IP klien. Header proxy hanya dipercaya jika
-// TRUSTED_PROXY=true (Render/Cloudflare).
 func clientIP(r *http.Request, trustedProxy bool) string {
 	if trustedProxy {
 		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
@@ -194,7 +188,6 @@ func clientIP(r *http.Request, trustedProxy bool) string {
 	return host
 }
 
-// SecurityHeaders menambahkan header pertahanan dasar. HSTS diatur di proxy.
 func SecurityHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-Content-Type-Options", "nosniff")
@@ -205,8 +198,6 @@ func SecurityHeaders(next http.Handler) http.Handler {
 	})
 }
 
-// RateLimit membatasi jumlah request per IP dalam satu jendela waktu (in-memory).
-// Di belakang reverse proxy, IP diambil dari header tepercaya bila trustedProxy.
 func RateLimit(limit int, window time.Duration, trustedProxy bool) func(http.Handler) http.Handler {
 	type bucket struct {
 		count int
@@ -221,7 +212,7 @@ func RateLimit(limit int, window time.Duration, trustedProxy bool) func(http.Han
 			now := time.Now()
 
 			mu.Lock()
-			if len(hits) > 10000 { // cegah memori membengkak
+			if len(hits) > 10000 {
 				for k, b := range hits {
 					if now.After(b.reset) {
 						delete(hits, k)

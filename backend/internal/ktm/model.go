@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// Status mengikuti constraint ktm_verifications_status_check.
 type Status string
 
 const (
@@ -15,8 +14,6 @@ const (
 	StatusRevoked  Status = "revoked"
 )
 
-// Submission adalah satu baris ktm_verifications beserta data pemiliknya.
-// StorageKey tidak pernah dikirim ke client; file diambil lewat endpoint file.
 type Submission struct {
 	ID     string `json:"id"`
 	UserID string `json:"user_id"`
@@ -44,8 +41,6 @@ type Submission struct {
 	UpdatedAt    time.Time  `json:"updated_at"`
 }
 
-// NewSubmission adalah data minimum untuk membuat pengajuan baru.
-// nim_snapshot dan validasi pemilik diisi oleh trigger database.
 type NewSubmission struct {
 	UserID         string
 	StorageKey     string
@@ -54,7 +49,6 @@ type NewSubmission struct {
 	ChecksumSHA256 string
 }
 
-// UserState dipakai untuk menolak pengajuan lebih awal dengan pesan yang jelas.
 type UserState struct {
 	ID       string
 	Name     string

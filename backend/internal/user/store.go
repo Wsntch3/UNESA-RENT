@@ -180,7 +180,7 @@ func (s *MemoryStore) FindNIMStatus(_ context.Context, nim string) (NIMStatus, e
 	nim = strings.TrimSpace(nim)
 	for _, u := range s.byID {
 		if u.NIM == nim {
-			// Mode JSON tidak punya tabel KTM, jadi tidak ada yang dianggap verified.
+
 			return NIMStatus{Exists: true, Verified: false, UserID: u.ID}, nil
 		}
 	}
@@ -264,7 +264,6 @@ func normalizeEmail(email string) string {
 	return strings.ToLower(strings.TrimSpace(email))
 }
 
-// NewID membuat UUID v4 untuk MemoryStore. PostgreSQL memakai gen_random_uuid().
 func NewID() (string, error) {
 	b := make([]byte, 16)
 	if _, err := rand.Read(b); err != nil {

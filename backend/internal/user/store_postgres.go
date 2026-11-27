@@ -10,7 +10,6 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// PostgresStore menyimpan user di tabel users (PostgreSQL).
 type PostgresStore struct {
 	pool *pgxpool.Pool
 }
@@ -19,9 +18,6 @@ func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
 	return &PostgresStore{pool: pool}
 }
 
-// userColumns dipakai di semua query agar urutan Scan konsisten.
-// id dan kode prodi di-cast ke text supaya bisa dipindai ke string.
-// Urutan di sini HARUS sama dengan urutan Scan di scanUser.
 const userColumns = `
 	id::text,
 	name,
@@ -47,8 +43,6 @@ func (s *PostgresStore) Create(ctx context.Context, u User) (User, error) {
 		status = StatusActive
 	}
 
-	// NIM kosong dikirim sebagai NULL agar index unik parsial tidak bentrok
-	// antar admin yang tidak punya NIM.
 	var nim any
 	if u.NIM != "" {
 		nim = u.NIM
@@ -98,8 +92,6 @@ func (s *PostgresStore) FindByID(ctx context.Context, id string) (User, error) {
 	return u, nil
 }
 
-// FindAuthState dipakai RequireAuth pada setiap request terproteksi:
-// query ringan tanpa password_hash.
 func (s *PostgresStore) FindAuthState(ctx context.Context, id string) (AuthState, error) {
 	var a AuthState
 	var role, status string
@@ -194,7 +186,6 @@ func scanUser(row pgx.Row) (User, error) {
 	return u, nil
 }
 
-// mapPostgresError menerjemahkan error constraint PostgreSQL menjadi error domain.
 func mapPostgresError(err error) error {
 	if errors.Is(err, ErrNotFound) {
 		return err
@@ -206,7 +197,7 @@ func mapPostgresError(err error) error {
 	}
 
 	switch pgErr.Code {
-	case "23505": // unique_violation
+	case "23505":
 		switch pgErr.ConstraintName {
 		case "users_nim_key":
 			return ErrNIMTaken
@@ -215,14 +206,14 @@ func mapPostgresError(err error) error {
 		}
 		return err
 
-	case "23514": // check_violation (trigger NIM menyebut nama constraint)
+	case "23514":
 		switch pgErr.ConstraintName {
 		case "users_nim_format", "users_mahasiswa_nim_required", "users_nim_prodi":
 			return ErrInvalidNIM
 		}
 		return err
 
-	case "22P02": // invalid_text_representation, mis. id bukan UUID
+	case "22P02":
 		return ErrNotFound
 	}
 

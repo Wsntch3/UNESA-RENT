@@ -156,7 +156,7 @@ export default function AdminKTM() {
       setFeedback(null)
       setActionError(null)
     }
-  }, [query.status]) // eslint-disable-line react-hooks/exhaustive-deps
+  }, [query.status]) 
 
   const changeStatus = (value) => {
     setStatus(value)

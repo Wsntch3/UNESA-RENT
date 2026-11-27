@@ -162,8 +162,6 @@ func main() {
 
 	router := httpapi.NewRouter(cfg, httpapi.NewAuthHandler(svc, cfg.TrustedProxy), ktmHandler, listingHandler, rentalHandler, adminHandler, tokens, store)
 
-	// ReadTimeout/WriteTimeout dimatikan karena koneksi WebSocket berumur panjang.
-	// Perlindungan slowloris tetap ada lewat ReadHeaderTimeout.
 	server := &http.Server{
 		Addr:              cfg.Addr,
 		Handler:           router,
@@ -197,8 +195,6 @@ func main() {
 	}
 }
 
-// buildStore memakai PostgreSQL jika DATABASE_URL diisi, selain itu file JSON.
-// Pool dikembalikan agar bisa ditutup saat server berhenti.
 func buildStore(cfg config.Config) (user.Store, *pgxpool.Pool, error) {
 	if cfg.DatabaseURL == "" {
 		memory, err := user.NewMemoryStore(cfg.StorePath)

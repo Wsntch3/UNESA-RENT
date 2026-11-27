@@ -19,7 +19,7 @@ const (
 	maxPasswordLength = 72
 	maxNameLength     = 80
 	maxEmailLength    = 254
-	nimLength         = 11 // AA FF PPP J UUU
+	nimLength         = 11
 )
 
 var nimPattern = regexp.MustCompile(fmt.Sprintf(`^[0-9]{%d}$`, nimLength))
@@ -169,8 +169,6 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthResult, error) 
 		return AuthResult{}, ErrInvalidCredentials
 	}
 
-	// Status dicek setelah password benar agar status akun tidak bocor
-	// ke orang yang tidak tahu passwordnya.
 	if found.Status != StatusActive {
 		return AuthResult{}, ErrAccountSuspended
 	}
@@ -193,7 +191,6 @@ func (s *Service) Login(ctx context.Context, in LoginInput) (AuthResult, error) 
 	return s.buildResult(found)
 }
 
-// LoginOTP menukar challenge admin + kode OTP menjadi JWT.
 func (s *Service) LoginOTP(ctx context.Context, challenge, code string) (AuthResult, error) {
 	email, err := s.otp.VerifyChallenge(ctx, challenge, code)
 	if err != nil {
@@ -214,8 +211,7 @@ func (s *Service) LoginOTP(ctx context.Context, challenge, code string) (AuthRes
 
 func (s *Service) RequestOTP(ctx context.Context, email string, purpose authotp.Purpose, ip string) error {
 	email = normalizeEmail(email)
-	// Registrasi hanya untuk domain kampus. Jangan membocorkan apa pun;
-	// handler tetap membalas 202.
+
 	if purpose == authotp.PurposeRegister && !s.isAllowedStudentEmail(email) {
 		return nil
 	}
@@ -226,7 +222,6 @@ func (s *Service) VerifyOTP(ctx context.Context, email string, purpose authotp.P
 	return s.otp.Verify(ctx, email, purpose, code)
 }
 
-// ForgotPassword selalu tidak membocorkan apakah email terdaftar.
 func (s *Service) ForgotPassword(ctx context.Context, email, ip string) error {
 	email = normalizeEmail(email)
 	if _, err := s.store.FindByEmail(ctx, email); err != nil {

@@ -37,8 +37,6 @@ func rentalFilterFromRequest(r *http.Request) rental.RentalFilter {
 	}
 }
 
-// --- Riwayat & filter peserta ---
-
 func (h *RentalHandler) MineFiltered(w http.ResponseWriter, r *http.Request) {
 	page, err := h.svc.MineFiltered(r.Context(), userIDFromContext(r.Context()), rentalFilterFromRequest(r))
 	if err != nil {
@@ -57,8 +55,6 @@ func (h *RentalHandler) History(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, map[string]any{"history": summary})
 }
-
-// --- Dokumen & COD peserta ---
 
 func (h *RentalHandler) Documents(w http.ResponseWriter, r *http.Request) {
 	docs, err := h.svc.Documents(r.Context(), userIDFromContext(r.Context()), r.PathValue("id"))
@@ -193,8 +189,6 @@ func (h *RentalHandler) Settle(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusCreated, map[string]any{"document": doc})
 }
 
-// --- Admin rental ---
-
 func (h *RentalHandler) AdminList(w http.ResponseWriter, r *http.Request) {
 	page, err := h.svc.AdminList(r.Context(), rentalFilterFromRequest(r))
 	if err != nil {
@@ -279,8 +273,6 @@ func (h *RentalHandler) AdminDocumentDownload(w http.ResponseWriter, r *http.Req
 	}
 	writeAttachment(w, documentFilename(doc.Type), doc.MimeType, data)
 }
-
-// --- Admin chat (terenkripsi) ---
 
 func (h *RentalHandler) AdminMessages(w http.ResponseWriter, r *http.Request) {
 	items, total, err := h.svc.AdminMessageMetadata(r.Context(), r.PathValue("id"),

@@ -12,7 +12,6 @@ type healthPinger interface {
 
 var healthStore healthPinger
 
-// SetHealthStore memasang koneksi DB untuk health check.
 func SetHealthStore(store healthPinger) {
 	healthStore = store
 }

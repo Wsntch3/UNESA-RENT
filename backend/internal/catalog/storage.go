@@ -11,15 +11,12 @@ import (
 	"strings"
 )
 
-// Storage menyimpan byte foto listing. Database hanya menyimpan storage_key,
-// jadi implementasi bisa diganti object storage tanpa mengubah service.
 type Storage interface {
 	Save(ctx context.Context, key string, data []byte, contentType string) error
 	Open(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 }
 
-// photoKeyPattern: listings/<uuid-listing>/<32 hex>.(jpg|png)
 var photoKeyPattern = regexp.MustCompile(`^listings/[0-9a-f-]{36}/[0-9a-f]{32}\.(jpg|png)$`)
 
 var ErrInvalidStorageKey = errors.New("storage key foto tidak valid")

@@ -78,7 +78,7 @@ func (s *Service) MyReports(ctx context.Context, userID string, limit, offset in
 			filtered = append(filtered, item)
 		}
 	}
-	// Hitung ulang total milik pengguna agar pagination tetap jujur.
+
 	all, _, err := s.store.Reports(ctx, ReportFilter{Limit: 10000})
 	if err != nil {
 		return ReportPage{}, err

@@ -26,7 +26,6 @@ const (
 	maxPricePerDay             = 10_000_000
 )
 
-// Jakarta tidak memakai DST, jadi fixed zone cukup dan tidak bergantung tzdata.
 var jakarta = time.FixedZone("WIB", 7*60*60)
 
 var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$`)
@@ -65,8 +64,6 @@ func (s *Service) Search(ctx context.Context, params SearchParams) (ListingPage,
 	return ListingPage{Items: items, Total: total, Limit: filter.Limit, Offset: filter.Offset}, nil
 }
 
-// Detail mengembalikan listing yang boleh dilihat publik. Listing takedown atau
-// pemiliknya tidak lagi terverifikasi diperlakukan sebagai tidak ditemukan.
 func (s *Service) Detail(ctx context.Context, id string) (Listing, error) {
 	listing, err := s.store.Get(ctx, id)
 	if err != nil {
@@ -212,8 +209,6 @@ func (s *Service) DeletePhoto(ctx context.Context, ownerID, listingID, photoID s
 	return nil
 }
 
-// PhotoFile membuka byte foto. Foto bersifat publik (tanpa auth) karena dipakai
-// langsung oleh tag <img>; ID-nya UUID acak sehingga tidak bisa ditebak.
 func (s *Service) PhotoFile(ctx context.Context, listingID, photoID string) (Photo, io.ReadCloser, error) {
 	photo, err := s.store.GetPhoto(ctx, listingID, photoID)
 	if err != nil {

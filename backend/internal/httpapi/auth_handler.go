@@ -108,7 +108,6 @@ func (h *AuthHandler) LoginOTP(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, newAuthResponse(result))
 }
 
-// RequestOTP selalu membalas 202 agar keberadaan email tidak bocor.
 func (h *AuthHandler) RequestOTP(w http.ResponseWriter, r *http.Request) {
 	var req otpRequestBody
 	if err := decodeJSON(w, r, &req); err != nil {
@@ -121,7 +120,7 @@ func (h *AuthHandler) RequestOTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if err := h.svc.RequestOTP(r.Context(), req.Email, purpose, clientIP(r, h.trustedProxy)); err != nil {
-		// Jangan bocorkan status email; cukup catat untuk operasional.
+
 		slog.Warn("permintaan OTP gagal", "purpose", req.Purpose, "error", err)
 	}
 	writeJSON(w, http.StatusAccepted, map[string]string{"status": "sent"})
@@ -146,7 +145,6 @@ func (h *AuthHandler) VerifyOTP(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]string{"verification_token": ticket})
 }
 
-// ForgotPassword selalu membalas 202.
 func (h *AuthHandler) ForgotPassword(w http.ResponseWriter, r *http.Request) {
 	var req otpRequestBody
 	if err := decodeJSON(w, r, &req); err != nil {

@@ -64,7 +64,6 @@ func NewService(store Store, mail email.Sender, pepper []byte, ttl time.Duration
 	}
 }
 
-// Request membuat kode baru, menonaktifkan kode lama, lalu mengirim email.
 func (s *Service) Request(ctx context.Context, addr string, purpose Purpose, ip string) error {
 	addr = normalizeEmail(addr)
 	if !validPurpose(purpose) {
@@ -92,7 +91,6 @@ func (s *Service) Request(ctx context.Context, addr string, purpose Purpose, ip 
 	return s.mail.Send(ctx, addr, email.OTPSubject(), email.OTPBody(code, int(s.ttl.Minutes())))
 }
 
-// Verify memeriksa kode. Jika benar, mengembalikan ticket mentah sekali pakai.
 func (s *Service) Verify(ctx context.Context, addr string, purpose Purpose, code string) (string, error) {
 	addr = normalizeEmail(addr)
 	code = strings.TrimSpace(code)
@@ -129,7 +127,6 @@ func (s *Service) Verify(ctx context.Context, addr string, purpose Purpose, code
 	return ticket, nil
 }
 
-// ConsumeTicket dipakai Register/ResetPassword untuk menukar ticket menjadi aksi.
 func (s *Service) ConsumeTicket(ctx context.Context, addr string, purpose Purpose, ticket string) error {
 	ticket = strings.TrimSpace(ticket)
 	if ticket == "" {
@@ -145,7 +142,6 @@ func (s *Service) ConsumeTicket(ctx context.Context, addr string, purpose Purpos
 	return nil
 }
 
-// CreateChallenge dipakai login admin: membuat kode + challenge sebelum OTP dikirim.
 func (s *Service) CreateChallenge(ctx context.Context, addr, userID, ip string) (string, error) {
 	addr = normalizeEmail(addr)
 	if err := s.checkRate(ctx, addr, PurposeAdminLogin, ip); err != nil {
@@ -181,7 +177,6 @@ func (s *Service) CreateChallenge(ctx context.Context, addr, userID, ip string) 
 	return challenge, nil
 }
 
-// VerifyChallenge dipakai login admin: challenge + kode -> sukses.
 func (s *Service) VerifyChallenge(ctx context.Context, challenge, code string) (string, error) {
 	rec, err := s.store.FindByChallenge(ctx, hashToken(strings.TrimSpace(challenge)))
 	if err != nil {

@@ -8,8 +8,6 @@ import (
 	"strings"
 )
 
-// Sender adalah abstraksi pengiriman email. Implementasi produksi memakai SMTP
-// (Brevo), sedangkan development memakai DevSender yang menulis ke log.
 type Sender interface {
 	Send(ctx context.Context, to, subject, text string) error
 }
@@ -45,7 +43,6 @@ func (s *SMTPSender) Send(ctx context.Context, to, subject, text string) error {
 	return smtp.SendMail(s.addr, s.auth, s.from, []string{to}, []byte(msg))
 }
 
-// DevSender menulis OTP ke log. Hanya boleh dipakai saat APP_ENV=development.
 type DevSender struct{}
 
 func (DevSender) Send(_ context.Context, to, subject, text string) error {

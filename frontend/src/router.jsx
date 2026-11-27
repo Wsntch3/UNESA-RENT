@@ -70,7 +70,7 @@ export function Link({ to, children, className, onClick, ...rest }) {
   )
 }
 
-/** Match "/barang/:id" style patterns. Returns params or null. */
+
 export function matchPath(pattern, pathname) {
   const p = pattern.split('/').filter(Boolean)
   const s = pathname.split('/').filter(Boolean)

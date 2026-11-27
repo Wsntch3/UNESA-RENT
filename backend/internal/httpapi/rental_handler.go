@@ -34,8 +34,6 @@ func NewRentalHandler(svc *rental.Service, agreementPath string, allowedOrigins 
 	}
 }
 
-// WithAccessPolicy memasang pembaca hash password (untuk verifikasi ulang admin)
-// dan kebijakan proxy untuk audit IP.
 func (h *RentalHandler) WithAccessPolicy(passwords passwordReader, audit auditLogger, trustedProxy bool) *RentalHandler {
 	h.passwords = passwords
 	h.audit = audit
@@ -183,8 +181,6 @@ func (h *RentalHandler) Messages(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"messages": list})
 }
 
-// SendMessage adalah fallback REST. Pesan yang berhasil disimpan tetap
-// dibroadcast ke koneksi WebSocket yang sedang terbuka.
 func (h *RentalHandler) SendMessage(w http.ResponseWriter, r *http.Request) {
 	var in rental.MessageInput
 	if err := decodeJSON(w, r, &in); err != nil {

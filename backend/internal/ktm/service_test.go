@@ -104,7 +104,6 @@ func (f *fakeStorage) Delete(_ context.Context, key string) error {
 	return nil
 }
 
-// PNG signature cukup untuk http.DetectContentType.
 var pngBytes = []byte("\x89PNG\r\n\x1a\n")
 
 func eligibleState() UserState {

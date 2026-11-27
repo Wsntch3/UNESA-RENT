@@ -9,7 +9,6 @@ import (
 	"unesarent/backend/internal/objectstore"
 )
 
-// SupabaseStorage menyimpan file KTM di bucket privat Supabase Storage.
 type SupabaseStorage struct {
 	client *objectstore.Supabase
 }

@@ -49,14 +49,12 @@ func NewRouter(cfg config.Config, authHandler *AuthHandler, ktmHandler *KTMHandl
 		requireAdmin := RequireRole(string(user.RoleAdminDev))
 		photoLimit := RateLimit(30, time.Minute, cfg.TrustedProxy)
 
-		// Katalog publik.
 		mux.HandleFunc("GET /api/categories", listingHandler.Categories)
 		mux.HandleFunc("GET /api/campus-locations", listingHandler.Locations)
 		mux.HandleFunc("GET /api/listings", listingHandler.Search)
 		mux.HandleFunc("GET /api/listings/{id}/photos/{photoID}/file", listingHandler.PhotoFile)
 		mux.HandleFunc("GET /api/listings/{id}", listingHandler.Detail)
 
-		// Pengelolaan listing oleh penyedia.
 		mux.Handle("GET /api/listings/mine", requireAuth(requireMahasiswa(http.HandlerFunc(listingHandler.Mine))))
 		mux.Handle("POST /api/listings", requireAuth(requireMahasiswa(http.HandlerFunc(listingHandler.Create))))
 		mux.Handle("PUT /api/listings/{id}", requireAuth(requireMahasiswa(http.HandlerFunc(listingHandler.Update))))
@@ -67,7 +65,6 @@ func NewRouter(cfg config.Config, authHandler *AuthHandler, ktmHandler *KTMHandl
 		mux.Handle("POST /api/listings/{id}/blocks", requireAuth(requireMahasiswa(http.HandlerFunc(listingHandler.AddBlock))))
 		mux.Handle("DELETE /api/listings/{id}/blocks/{blockID}", requireAuth(requireMahasiswa(http.HandlerFunc(listingHandler.DeleteBlock))))
 
-		// Moderasi admin.
 		mux.Handle("GET /api/admin/listings", requireAuth(requireAdmin(http.HandlerFunc(listingHandler.AdminList))))
 		mux.Handle("POST /api/admin/listings/{id}/takedown", requireAuth(requireAdmin(http.HandlerFunc(listingHandler.Takedown))))
 		mux.Handle("POST /api/admin/listings/{id}/restore", requireAuth(requireAdmin(http.HandlerFunc(listingHandler.Restore))))
@@ -103,7 +100,7 @@ func NewRouter(cfg config.Config, authHandler *AuthHandler, ktmHandler *KTMHandl
 		mux.Handle("GET /api/rentals/{id}/messages", requireAuth(http.HandlerFunc(rentalHandler.Messages)))
 		mux.Handle("POST /api/rentals/{id}/messages", messageLimit(requireAuth(http.HandlerFunc(rentalHandler.SendMessage))))
 		mux.Handle("POST /api/rentals/{id}/ws-ticket", ticketLimit(requireAuth(http.HandlerFunc(rentalHandler.WSTicket))))
-		// Handshake WebSocket memakai tiket sekali pakai, bukan header Authorization.
+
 		mux.HandleFunc("GET /api/rentals/{id}/ws", rentalHandler.WebSocket)
 
 		mux.Handle("GET /api/notifications", requireAuth(http.HandlerFunc(rentalHandler.Notifications)))

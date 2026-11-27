@@ -6,7 +6,6 @@ import (
 	"time"
 )
 
-// MemoryStore hanya untuk development (DATABASE_URL kosong) dan test.
 type MemoryStore struct {
 	mu      sync.Mutex
 	records []Record

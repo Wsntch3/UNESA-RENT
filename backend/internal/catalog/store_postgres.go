@@ -19,7 +19,6 @@ func NewPostgresStore(pool *pgxpool.Pool) *PostgresStore {
 	return &PostgresStore{pool: pool}
 }
 
-// Urutan kolom HARUS sama dengan urutan Scan di scanListing.
 const listingColumns = `
 	l.id::text,
 	l.owner_id::text,
@@ -519,25 +518,25 @@ func mapPostgresError(err error) error {
 	}
 
 	switch pgErr.Code {
-	case "23505": // unique_violation
+	case "23505":
 		if strings.HasPrefix(pgErr.ConstraintName, "listing_photos_") {
 			return ErrPhotoLimit
 		}
-	case "23503": // foreign_key_violation
+	case "23503":
 		if pgErr.ConstraintName == "rentals_listing_id_fkey" {
 			return ErrListingInUse
 		}
 		return ErrInvalidReference
-	case "23P01": // exclusion_violation: blokir bertabrakan dengan blokir/rental lain
+	case "23P01":
 		return ErrBlockOverlap
-	case "23514": // check_violation atau RAISE dari trigger
+	case "23514":
 		switch {
 		case strings.Contains(pgErr.Message, "penyedia harus"):
 			return ErrNotVerified
 		case strings.Contains(pgErr.Message, "periode blokir"):
 			return ErrBlockOverlap
 		}
-	case "22P02": // invalid_text_representation, mis. id bukan UUID
+	case "22P02":
 		return ErrNotFound
 	}
 

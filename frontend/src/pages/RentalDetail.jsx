@@ -93,7 +93,7 @@ function ChatPanel({ rentalId, canChat, user }) {
               setNote(payload.message || payload.code || 'Pesan gagal dikirim.')
             }
           } catch {
-            // frame tidak dikenal — abaikan
+            
           }
         }
 
@@ -109,7 +109,7 @@ function ChatPanel({ rentalId, canChat, user }) {
           try {
             socket.close()
           } catch {
-            // abaikan
+            
           }
         }
       } catch {
@@ -119,7 +119,7 @@ function ChatPanel({ rentalId, canChat, user }) {
 
     connect()
 
-    // Cadangan bila WebSocket diblokir jaringan kampus.
+    
     const poll = setInterval(load, 15000)
 
     return () => {
@@ -132,7 +132,7 @@ function ChatPanel({ rentalId, canChat, user }) {
         try {
           socket.close()
         } catch {
-          // abaikan
+          
         }
       }
       setConnected(false)

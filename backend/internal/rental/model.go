@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// DateFormat adalah format tanggal API untuk rental dan availability.
 const DateFormat = "2006-01-02"
 
 type Status string
@@ -49,9 +48,8 @@ type Rental struct {
 	CancelledAt *time.Time `json:"cancelled_at,omitempty"`
 	CompletedAt *time.Time `json:"completed_at,omitempty"`
 
-	// MyRole diisi service: "renter" atau "owner".
 	MyRole string `json:"my_role,omitempty"`
-	// AgreementURL hanya diisi untuk rental approved.
+
 	AgreementURL string `json:"agreement_url,omitempty"`
 
 	Events []Event `json:"events,omitempty"`
@@ -76,17 +74,14 @@ type Message struct {
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
 
-	// Metadata hanya untuk tampilan admin; body sengaja tidak dikirim.
 	BodyLength int    `json:"body_length,omitempty"`
 	BodySHA256 string `json:"body_sha256,omitempty"`
 
-	// Field internal untuk dekripsi di service. Tidak pernah di-serialize.
 	Ciphertext []byte `json:"-"`
 	Nonce      []byte `json:"-"`
 	KeyVersion int    `json:"-"`
 }
 
-// AdminMessage tidak memuat isi pesan, hanya metadata.
 type AdminMessage struct {
 	ID         string    `json:"id"`
 	Sender     Party     `json:"sender"`
@@ -190,7 +185,7 @@ type Notification struct {
 type Unavailable struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
-	Source    string `json:"source"` // "block" atau "rental"
+	Source    string `json:"source"`
 }
 
 type DateInput struct {
@@ -217,7 +212,6 @@ type NotificationPage struct {
 	Offset      int            `json:"offset"`
 }
 
-// ValidationError membawa pesan per field agar handler mengirim 422 konsisten.
 type ValidationError struct {
 	Fields map[string]string
 }

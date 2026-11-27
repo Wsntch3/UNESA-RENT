@@ -1,4 +1,3 @@
-// Package chatcrypto menyediakan enkripsi isi pesan chat dengan AES-256-GCM.
 package chatcrypto
 
 import (
@@ -19,13 +18,11 @@ var (
 	ErrInvalidCipher  = errors.New("ciphertext chat tidak valid")
 )
 
-// Cipher menyimpan beberapa versi kunci agar rotasi tidak memutus pesan lama.
 type Cipher struct {
 	keys   map[int][]byte
 	active int
 }
 
-// New membuat Cipher dari JSON bertipe map[versi]base64(kunci 32 byte).
 func New(keysJSON string, active int) (*Cipher, error) {
 	var raw map[string]string
 	if err := json.Unmarshal([]byte(keysJSON), &raw); err != nil {
@@ -49,7 +46,6 @@ func New(keysJSON string, active int) (*Cipher, error) {
 	return &Cipher{keys: keys, active: active}, nil
 }
 
-// Encrypt mengembalikan ciphertext, nonce, dan versi kunci yang dipakai.
 func (c *Cipher) Encrypt(plaintext string) (ciphertext, nonce []byte, version int, err error) {
 	version = c.active
 	block, err := aes.NewCipher(c.keys[version])
@@ -67,7 +63,6 @@ func (c *Cipher) Encrypt(plaintext string) (ciphertext, nonce []byte, version in
 	return gcm.Seal(nil, nonce, []byte(plaintext), nil), nonce, version, nil
 }
 
-// Decrypt membuka ciphertext dengan versi kunci yang tersimpan bersama pesan.
 func (c *Cipher) Decrypt(ciphertext, nonce []byte, version int) (string, error) {
 	key, ok := c.keys[version]
 	if !ok {

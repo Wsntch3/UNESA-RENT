@@ -35,8 +35,6 @@ type NewRecord struct {
 	RequestIP     string
 }
 
-// Store menyimpan OTP. Implementasi Postgres dipakai di produksi; MemoryStore
-// dipakai saat DATABASE_URL kosong (mode JSON development).
 type Store interface {
 	Insert(ctx context.Context, rec NewRecord) (Record, error)
 	CountRecent(ctx context.Context, email string, purpose Purpose, window time.Duration) (int, error)

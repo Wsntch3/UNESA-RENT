@@ -44,7 +44,7 @@ export default function Login({ next }) {
       }
       navigate(target, { replace: true })
     } catch {
-      // error sudah tersimpan di AuthContext
+      
     }
   }
 
@@ -60,7 +60,7 @@ export default function Login({ next }) {
       await loginOtp({ challenge, code: otp.trim() })
       navigate(target, { replace: true })
     } catch {
-      // error sudah tersimpan di AuthContext
+      
     }
   }
 

@@ -2,8 +2,6 @@ package ktm
 
 import "context"
 
-// Store adalah kontrak penyimpanan metadata verifikasi KTM.
-// Implementasi saat ini: PostgresStore.
 type Store interface {
 	Create(ctx context.Context, in NewSubmission) (string, error)
 	GetByID(ctx context.Context, id string) (Submission, error)

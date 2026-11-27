@@ -8,14 +8,14 @@ function cspOrigins(apiUrl) {
   if (apiUrl) {
     try {
       const url = new URL(apiUrl, 'http://localhost')
-      const isAbsolute = /^(https?:)?\/\//i.test(apiUrl)
+      const isAbsolute = /^(https?:)?\/\//i
       if (isAbsolute && url.origin !== 'http://localhost') {
         httpOrigins.push(url.origin)
         const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:'
         wsOrigins.push(`${wsProtocol}//${url.host}`)
       }
     } catch {
-      // Abaikan nilai VITE_API_URL yang bukan URL valid; default tetap same-origin.
+      
     }
   }
 

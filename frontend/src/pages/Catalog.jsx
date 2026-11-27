@@ -39,7 +39,7 @@ export default function Catalog() {
     return () => clearTimeout(timer)
   }, [searchInput])
 
-  // Sinkronkan saat URL berubah (mis. klik kategori dari halaman lain).
+  
   useEffect(() => {
     setSearchInput(query.q || '')
     setAppliedQ(query.q || '')

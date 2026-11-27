@@ -46,8 +46,6 @@ func (h *AdminHandler) handleError(w http.ResponseWriter, err error) {
 	}
 }
 
-// --- Laporan peserta ---
-
 func (h *AdminHandler) CreateReport(w http.ResponseWriter, r *http.Request) {
 	var in admin.ReportInput
 	if err := decodeJSON(w, r, &in); err != nil {
@@ -71,8 +69,6 @@ func (h *AdminHandler) MyReports(w http.ResponseWriter, r *http.Request) {
 	}
 	writeJSON(w, http.StatusOK, page)
 }
-
-// --- Antrean laporan admin ---
 
 func (h *AdminHandler) Reports(w http.ResponseWriter, r *http.Request) {
 	page, err := h.svc.Reports(r.Context(), admin.ReportFilter{
@@ -122,8 +118,6 @@ func (h *AdminHandler) ResolveReport(w http.ResponseWriter, r *http.Request) {
 func (h *AdminHandler) RejectReport(w http.ResponseWriter, r *http.Request) {
 	h.moderateReport(w, r, "reject")
 }
-
-// --- Pengguna ---
 
 func (h *AdminHandler) Users(w http.ResponseWriter, r *http.Request) {
 	page, err := h.svc.Users(r.Context(), userFilterFromRequest(r))
@@ -209,8 +203,6 @@ func (h *AdminHandler) DeleteUser(w http.ResponseWriter, r *http.Request) {
 	h.moderateUser(w, r, "delete")
 }
 
-// --- Audit & statistik ---
-
 func (h *AdminHandler) Audit(w http.ResponseWriter, r *http.Request) {
 	page, err := h.svc.Audit(r.Context(), admin.AuditFilter{
 		ActorID: r.URL.Query().Get("actor_id"),
@@ -236,7 +228,6 @@ func (h *AdminHandler) Stats(w http.ResponseWriter, r *http.Request) {
 	writeJSON(w, http.StatusOK, map[string]any{"stats": stats})
 }
 
-// parseCSVDate dipakai oleh handler ekspor rental.
 func parseCSVDate(raw string) string {
 	t, err := time.Parse("2006-01-02", raw)
 	if err != nil {

@@ -81,7 +81,7 @@ export function Layout({ children }) {
     try {
       if (!item.read_at) await notificationApi.read(item.id)
     } catch {
-      // ignore — navigation is more important
+      
     }
     setBellOpen(false)
     loadNotifications()

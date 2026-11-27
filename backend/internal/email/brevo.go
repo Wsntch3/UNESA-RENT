@@ -14,8 +14,6 @@ import (
 
 const brevoSMTPEndpoint = "https://api.brevo.com/v3/smtp/email"
 
-// BrevoAPISender mengirim email lewat Brevo REST API. Dipakai saat SMTP
-// diblokir oleh platform deploy tetapi HTTPS tetap tersedia.
 type BrevoAPISender struct {
 	apiKey string
 	from   mail.Address

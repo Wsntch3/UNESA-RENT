@@ -9,7 +9,6 @@ import (
 	"unesarent/backend/internal/objectstore"
 )
 
-// SupabaseStorage menyimpan foto listing di bucket privat Supabase Storage.
 type SupabaseStorage struct {
 	client *objectstore.Supabase
 }

@@ -11,24 +11,16 @@ import (
 	"strings"
 )
 
-// Storage adalah abstraksi penyimpanan file KTM.
-//
-// Saat ini hanya ada implementasi lokal (LocalStorage). Untuk Supabase nanti,
-// cukup buat implementasi Storage baru yang memakai Supabase Storage API/SDK;
-// service dan handler tidak perlu berubah.
 type Storage interface {
 	Save(ctx context.Context, key string, data []byte, contentType string) error
 	Open(ctx context.Context, key string) (io.ReadCloser, error)
 	Delete(ctx context.Context, key string) error
 }
 
-// storageKeyPattern membatasi key ke format yang dibuat service:
-// ktm/<uuid-user>/<32 hex>.(jpg|png)
 var storageKeyPattern = regexp.MustCompile(`^ktm/[0-9a-f-]{36}/[0-9a-f]{32}\.(jpg|png)$`)
 
 var ErrInvalidStorageKey = errors.New("storage key KTM tidak valid")
 
-// LocalStorage menyimpan file di filesystem lokal dengan permission 0600.
 type LocalStorage struct {
 	root string
 }

@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-// DateFormat adalah format tanggal yang dipakai API untuk periode blokir.
 const DateFormat = "2006-01-02"
 
 type Category struct {
@@ -19,7 +18,6 @@ type Location struct {
 	Name string `json:"name"`
 }
 
-// Owner adalah data publik penyedia. Email, NIM, dan kontak tidak pernah ikut.
 type Owner struct {
 	ID   string `json:"id"`
 	Name string `json:"name"`
@@ -34,7 +32,6 @@ type Photo struct {
 	FileSizeBytes int64  `json:"file_size_bytes"`
 }
 
-// Block adalah periode tidak tersedia. Tanggal inklusif, format YYYY-MM-DD.
 type Block struct {
 	ID        string    `json:"id"`
 	StartDate string    `json:"start_date"`
@@ -67,15 +64,12 @@ type Listing struct {
 	Photos         []Photo  `json:"photos,omitempty"`
 	BlockedPeriods []Period `json:"blocked_periods,omitempty"`
 
-	// OwnerVerified tidak dikirim ke client; dipakai service untuk menyembunyikan
-	// listing milik penyedia yang verifikasi KTM-nya sudah dicabut.
 	OwnerVerified bool `json:"-"`
 
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-// ListingInput adalah body create/update listing. Field mengikuti nama JSON.
 type ListingInput struct {
 	Title            string `json:"title"`
 	Description      string `json:"description"`
@@ -91,7 +85,6 @@ type BlockInput struct {
 	Reason    string `json:"reason"`
 }
 
-// SearchParams masih berupa string mentah dari query; service yang memvalidasi.
 type SearchParams struct {
 	Query    string
 	Category string
@@ -121,7 +114,6 @@ type ListingPage struct {
 	Offset int       `json:"offset"`
 }
 
-// ValidationError membawa pesan per field agar handler mengirim 422 konsisten.
 type ValidationError struct {
 	Fields map[string]string
 }

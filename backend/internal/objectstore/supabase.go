@@ -12,12 +12,10 @@ import (
 	"time"
 )
 
-// ErrNotFound dipakai pemanggil untuk membedakan objek yang tidak ada dari error lain.
 var ErrNotFound = errors.New("objek tidak ditemukan")
 
 const requestTimeout = 30 * time.Second
 
-// Supabase menyimpan objek lewat Supabase Storage REST API.
 type Supabase struct {
 	baseURL    string
 	serviceKey string
@@ -37,7 +35,6 @@ func NewSupabase(baseURL, serviceKey, bucket string) *Supabase {
 	}
 }
 
-// noCrossHostRedirect mengizinkan redirect hanya ke skema dan host asal.
 func noCrossHostRedirect(req *http.Request, via []*http.Request) error {
 	if len(via) == 0 {
 		return errors.New("redirect Supabase tidak valid")
@@ -142,7 +139,6 @@ func (s *Supabase) objectURL(key string) (string, error) {
 	return s.baseURL + "/storage/v1/object/" + url.PathEscape(s.bucket) + "/" + strings.Join(escaped, "/"), nil
 }
 
-// statusError sengaja tidak menyertakan key atau isi respons.
 func statusError(operation string, status int) error {
 	if status == http.StatusNotFound {
 		return fmt.Errorf("%s: %w", operation, ErrNotFound)

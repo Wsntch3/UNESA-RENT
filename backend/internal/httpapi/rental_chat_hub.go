@@ -23,8 +23,6 @@ type wsTicket struct {
 	Expires  time.Time
 }
 
-// ticketStore menyimpan tiket WS sekali pakai. In-memory, jadi hanya cocok
-// untuk satu instance backend.
 type ticketStore struct {
 	mu      sync.Mutex
 	tickets map[string]wsTicket
@@ -95,7 +93,6 @@ func (c *chatClient) ping(ctx context.Context) error {
 	return c.conn.Ping(ctx)
 }
 
-// allowMessage membatasi jumlah pesan per koneksi per menit.
 func (c *chatClient) allowMessage(now time.Time) bool {
 	if now.After(c.window) {
 		c.window = now.Add(time.Minute)
