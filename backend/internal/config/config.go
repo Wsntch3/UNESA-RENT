@@ -61,7 +61,7 @@ const devChatKey = "ZGV2LWNoYXQtZW5jcnlwdGlvbi1rZXktMzJieXRlcyE="
 
 func Load() (Config, error) {
 	cfg := Config{
-		Addr:        envOr("APP_ADDR", ":8080"),
+		Addr:        envAddr(),
 		TokenTTL:    envDurationOr("JWT_TTL", 24*time.Hour),
 		StorePath:   envOr("STORE_PATH", "data/users.json"),
 		DatabaseURL: envOr("DATABASE_URL", ""),
@@ -195,6 +195,21 @@ func envOr(key, fallback string) string {
 		return v
 	}
 	return fallback
+}
+
+// envAddr mendukung APP_ADDR eksplisit dan PORT yang disuntik platform
+// seperti Render. Render mengharapkan aplikasi mendengarkan di PORT tersebut.
+func envAddr() string {
+	if addr := strings.TrimSpace(os.Getenv("APP_ADDR")); addr != "" {
+		return addr
+	}
+	if port := strings.TrimSpace(os.Getenv("PORT")); port != "" {
+		if strings.HasPrefix(port, ":") {
+			return port
+		}
+		return ":" + port
+	}
+	return ":8080"
 }
 
 func envDurationOr(key string, fallback time.Duration) time.Duration {
