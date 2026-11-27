@@ -14,18 +14,27 @@ import (
 )
 
 var (
-	ErrNotFound   = errors.New("user tidak ditemukan")
-	ErrEmailTaken = errors.New("email sudah terdaftar")
-	ErrNIMTaken   = errors.New("NIM sudah terdaftar")
-	ErrInvalidNIM = errors.New("NIM tidak valid untuk Fakultas Teknik")
+	ErrNotFound         = errors.New("user tidak ditemukan")
+	ErrEmailTaken       = errors.New("email sudah terdaftar")
+	ErrNIMTaken         = errors.New("NIM sudah terdaftar")
+	ErrInvalidNIM       = errors.New("NIM tidak valid untuk Fakultas Teknik")
 	ErrAccountSuspended = errors.New("akun ditangguhkan")
 )
+
+type NIMStatus struct {
+	Exists   bool
+	Verified bool
+	UserID   string
+}
 
 type Store interface {
 	Create(ctx context.Context, u User) (User, error)
 	FindByEmail(ctx context.Context, email string) (User, error)
 	FindByID(ctx context.Context, id string) (User, error)
 	FindAuthState(ctx context.Context, id string) (AuthState, error)
+	FindNIMStatus(ctx context.Context, nim string) (NIMStatus, error)
+	MarkLogin(ctx context.Context, userID string) error
+	UpdatePassword(ctx context.Context, userID, passwordHash string) error
 }
 
 type MemoryStore struct {
@@ -162,6 +171,51 @@ func (s *MemoryStore) FindAuthState(_ context.Context, id string) (AuthState, er
 		return AuthState{}, ErrNotFound
 	}
 	return AuthState{Role: u.Role, Status: u.Status, TokenVersion: u.TokenVersion}, nil
+}
+
+func (s *MemoryStore) FindNIMStatus(_ context.Context, nim string) (NIMStatus, error) {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+
+	nim = strings.TrimSpace(nim)
+	for _, u := range s.byID {
+		if u.NIM == nim {
+			// Mode JSON tidak punya tabel KTM, jadi tidak ada yang dianggap verified.
+			return NIMStatus{Exists: true, Verified: false, UserID: u.ID}, nil
+		}
+	}
+	return NIMStatus{}, nil
+}
+
+func (s *MemoryStore) MarkLogin(_ context.Context, userID string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	u, ok := s.byID[userID]
+	if !ok {
+		return ErrNotFound
+	}
+	now := time.Now().UTC()
+	u.LastLoginAt = &now
+	s.byID[userID] = u
+	s.byEmail[normalizeEmail(u.Email)] = u
+	return s.persistLocked()
+}
+
+func (s *MemoryStore) UpdatePassword(_ context.Context, userID, passwordHash string) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+
+	u, ok := s.byID[userID]
+	if !ok {
+		return ErrNotFound
+	}
+	u.PasswordHash = passwordHash
+	u.TokenVersion++
+	u.UpdatedAt = time.Now().UTC()
+	s.byID[userID] = u
+	s.byEmail[normalizeEmail(u.Email)] = u
+	return s.persistLocked()
 }
 
 func (s *MemoryStore) persistLocked() error {

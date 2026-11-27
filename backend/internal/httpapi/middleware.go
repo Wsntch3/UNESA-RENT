@@ -173,9 +173,41 @@ func RequireRole(roles ...string) func(http.Handler) http.Handler {
 	}
 }
 
+// clientIP mengembalikan IP klien. Header proxy hanya dipercaya jika
+// TRUSTED_PROXY=true (Render/Cloudflare).
+func clientIP(r *http.Request, trustedProxy bool) string {
+	if trustedProxy {
+		if xff := r.Header.Get("X-Forwarded-For"); xff != "" {
+			parts := strings.Split(xff, ",")
+			if ip := strings.TrimSpace(parts[0]); ip != "" {
+				return ip
+			}
+		}
+		if ip := strings.TrimSpace(r.Header.Get("X-Real-IP")); ip != "" {
+			return ip
+		}
+	}
+	host, _, err := net.SplitHostPort(r.RemoteAddr)
+	if err != nil {
+		return r.RemoteAddr
+	}
+	return host
+}
+
+// SecurityHeaders menambahkan header pertahanan dasar. HSTS diatur di proxy.
+func SecurityHeaders(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("X-Content-Type-Options", "nosniff")
+		w.Header().Set("X-Frame-Options", "DENY")
+		w.Header().Set("Referrer-Policy", "strict-origin-when-cross-origin")
+		w.Header().Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		next.ServeHTTP(w, r)
+	})
+}
+
 // RateLimit membatasi jumlah request per IP dalam satu jendela waktu (in-memory).
-// Di belakang reverse proxy, ganti RemoteAddr dengan IP dari header yang tepercaya.
-func RateLimit(limit int, window time.Duration) func(http.Handler) http.Handler {
+// Di belakang reverse proxy, IP diambil dari header tepercaya bila trustedProxy.
+func RateLimit(limit int, window time.Duration, trustedProxy bool) func(http.Handler) http.Handler {
 	type bucket struct {
 		count int
 		reset time.Time
@@ -185,10 +217,7 @@ func RateLimit(limit int, window time.Duration) func(http.Handler) http.Handler 
 
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-			ip, _, err := net.SplitHostPort(r.RemoteAddr)
-			if err != nil {
-				ip = r.RemoteAddr
-			}
+			ip := clientIP(r, trustedProxy)
 			now := time.Now()
 
 			mu.Lock()

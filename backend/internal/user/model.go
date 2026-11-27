@@ -19,28 +19,32 @@ const (
 )
 
 type User struct {
-	ID               string    `json:"id"`
-	Name             string    `json:"name"`
-	Email            string    `json:"email"`
-	PasswordHash     string    `json:"password_hash"`
-	Role             Role      `json:"role"`
-	NIM              string    `json:"nim,omitempty"`
-	StudyProgramCode string    `json:"study_program_code,omitempty"`
-	Status           Status    `json:"status"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
-	TokenVersion     int       `json:"-"`
+	ID               string     `json:"id"`
+	Name             string     `json:"name"`
+	Email            string     `json:"email"`
+	PasswordHash     string     `json:"password_hash"`
+	Role             Role       `json:"role"`
+	NIM              string     `json:"nim,omitempty"`
+	StudyProgramCode string     `json:"study_program_code,omitempty"`
+	Status           Status     `json:"status"`
+	EmailVerifiedAt  *time.Time `json:"email_verified_at,omitempty"`
+	LastLoginAt      *time.Time `json:"last_login_at,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+	TokenVersion     int        `json:"-"`
 }
 
 type PublicUser struct {
-	ID               string    `json:"id"`
-	Name             string    `json:"name"`
-	Email            string    `json:"email"`
-	Role             Role      `json:"role"`
-	NIM              string    `json:"nim,omitempty"`
-	StudyProgramCode string    `json:"study_program_code,omitempty"`
-	Status           Status    `json:"status"`
-	CreatedAt        time.Time `json:"created_at"`
+	ID               string     `json:"id"`
+	Name             string     `json:"name"`
+	Email            string     `json:"email"`
+	Role             Role       `json:"role"`
+	NIM              string     `json:"nim,omitempty"`
+	StudyProgramCode string     `json:"study_program_code,omitempty"`
+	Status           Status     `json:"status"`
+	EmailVerifiedAt  *time.Time `json:"email_verified_at,omitempty"`
+	LastLoginAt      *time.Time `json:"last_login_at,omitempty"`
+	CreatedAt        time.Time  `json:"created_at"`
 }
 
 func (u User) Public() PublicUser {
@@ -52,6 +56,8 @@ func (u User) Public() PublicUser {
 		NIM:              u.NIM,
 		StudyProgramCode: u.StudyProgramCode,
 		Status:           u.Status,
+		EmailVerifiedAt:  u.EmailVerifiedAt,
+		LastLoginAt:      u.LastLoginAt,
 		CreatedAt:        u.CreatedAt,
 	}
 }

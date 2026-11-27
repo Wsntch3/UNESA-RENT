@@ -32,6 +32,8 @@ const userColumns = `
 	COALESCE(study_program_code, ''),
 	status,
 	token_version,
+	email_verified_at,
+	last_login_at,
 	created_at,
 	updated_at`
 
@@ -53,10 +55,10 @@ func (s *PostgresStore) Create(ctx context.Context, u User) (User, error) {
 	}
 
 	row := s.pool.QueryRow(ctx, `
-		INSERT INTO users (name, email, password_hash, role, nim, status)
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO users (name, email, password_hash, role, nim, status, email_verified_at)
+		VALUES ($1, $2, $3, $4, $5, $6, $7)
 		RETURNING `+userColumns,
-		u.Name, u.Email, u.PasswordHash, string(role), nim, string(status),
+		u.Name, u.Email, u.PasswordHash, string(role), nim, string(status), u.EmailVerifiedAt,
 	)
 
 	created, err := scanUser(row)
@@ -115,6 +117,49 @@ func (s *PostgresStore) FindAuthState(ctx context.Context, id string) (AuthState
 	return a, nil
 }
 
+func (s *PostgresStore) FindNIMStatus(ctx context.Context, nim string) (NIMStatus, error) {
+	var (
+		userID   string
+		verified bool
+	)
+	err := s.pool.QueryRow(ctx, `
+		SELECT u.id::text, is_ktm_verified(u.id)
+		  FROM users u WHERE u.nim = $1`,
+		strings.TrimSpace(nim),
+	).Scan(&userID, &verified)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return NIMStatus{}, nil
+	}
+	if err != nil {
+		return NIMStatus{}, mapPostgresError(err)
+	}
+	return NIMStatus{Exists: true, Verified: verified, UserID: userID}, nil
+}
+
+func (s *PostgresStore) MarkLogin(ctx context.Context, userID string) error {
+	_, err := s.pool.Exec(ctx, `
+		UPDATE users SET last_login_at = now() WHERE id = $1::uuid`,
+		strings.TrimSpace(userID))
+	return mapPostgresError(err)
+}
+
+func (s *PostgresStore) UpdatePassword(ctx context.Context, userID, passwordHash string) error {
+	tag, err := s.pool.Exec(ctx, `
+		UPDATE users
+		   SET password_hash = $2,
+		       token_version = token_version + 1,
+		       updated_at = now()
+		 WHERE id = $1::uuid`,
+		strings.TrimSpace(userID), passwordHash)
+	if err != nil {
+		return mapPostgresError(err)
+	}
+	if tag.RowsAffected() == 0 {
+		return ErrNotFound
+	}
+	return nil
+}
+
 func scanUser(row pgx.Row) (User, error) {
 	var (
 		u      User
@@ -132,6 +177,8 @@ func scanUser(row pgx.Row) (User, error) {
 		&u.StudyProgramCode,
 		&status,
 		&u.TokenVersion,
+		&u.EmailVerifiedAt,
+		&u.LastLoginAt,
 		&u.CreatedAt,
 		&u.UpdatedAt,
 	)

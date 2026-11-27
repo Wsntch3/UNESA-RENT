@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log/slog"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/coder/websocket"
@@ -20,6 +19,9 @@ type RentalHandler struct {
 	tickets        *ticketStore
 	agreementPath  string
 	originPatterns []string
+	passwords      passwordReader
+	audit          auditLogger
+	trustedProxy   bool
 }
 
 func NewRentalHandler(svc *rental.Service, agreementPath string, allowedOrigins []string) *RentalHandler {
@@ -30,6 +32,15 @@ func NewRentalHandler(svc *rental.Service, agreementPath string, allowedOrigins 
 		agreementPath:  agreementPath,
 		originPatterns: allowedOrigins,
 	}
+}
+
+// WithAccessPolicy memasang pembaca hash password (untuk verifikasi ulang admin)
+// dan kebijakan proxy untuk audit IP.
+func (h *RentalHandler) WithAccessPolicy(passwords passwordReader, audit auditLogger, trustedProxy bool) *RentalHandler {
+	h.passwords = passwords
+	h.audit = audit
+	h.trustedProxy = trustedProxy
+	return h
 }
 
 func (h *RentalHandler) Availability(w http.ResponseWriter, r *http.Request) {
@@ -288,31 +299,12 @@ func (h *RentalHandler) WebSocket(w http.ResponseWriter, r *http.Request) {
 }
 
 func (h *RentalHandler) AgreementFile(w http.ResponseWriter, r *http.Request) {
-	if err := h.svc.AgreementAccess(r.Context(), userIDFromContext(r.Context()), r.PathValue("id")); err != nil {
+	_, data, err := h.svc.AgreementFile(r.Context(), userIDFromContext(r.Context()), r.PathValue("id"))
+	if err != nil {
 		h.handleError(w, "rental_agreement", err)
 		return
 	}
-
-	file, err := os.Open(h.agreementPath)
-	if err != nil {
-		slog.Error("file perjanjian tidak bisa dibuka", "path", h.agreementPath, "error", err)
-		writeError(w, http.StatusNotFound, "agreement_not_found", "File perjanjian tidak tersedia")
-		return
-	}
-	defer file.Close()
-
-	info, err := file.Stat()
-	if err != nil {
-		slog.Error("gagal membaca metadata perjanjian", "path", h.agreementPath, "error", err)
-		writeError(w, http.StatusInternalServerError, "internal_error", "Terjadi kesalahan pada server")
-		return
-	}
-
-	w.Header().Set("Content-Type", "application/pdf")
-	w.Header().Set("Content-Disposition", `inline; filename="surat-pernyataan-keamanan.pdf"`)
-	w.Header().Set("Cache-Control", "private, max-age=300")
-	w.Header().Set("X-Content-Type-Options", "nosniff")
-	http.ServeContent(w, r, "surat-pernyataan-keamanan.pdf", info.ModTime(), file)
+	writePDF(w, "surat-perjanjian-sewa.pdf", data)
 }
 
 func (h *RentalHandler) ping(ctx context.Context, client *chatClient) {
@@ -400,6 +392,27 @@ func (h *RentalHandler) handleError(w http.ResponseWriter, operation string, err
 
 	case errors.Is(err, rental.ErrInvalidBody):
 		writeValidationError(w, map[string]string{"body": "Pesan tidak valid"})
+
+	case errors.Is(err, rental.ErrCODIncomplete):
+		writeError(w, http.StatusConflict, "cod_incomplete", "Selesaikan serah terima dan pengembalian barang sebelum menandai selesai.")
+
+	case errors.Is(err, rental.ErrInvalidCODState):
+		writeError(w, http.StatusConflict, "cod_invalid_state", "State COD tidak memungkinkan aksi ini")
+
+	case errors.Is(err, rental.ErrMissingProof):
+		writeValidationError(w, map[string]string{"file": "Bukti wajib diunggah"})
+
+	case errors.Is(err, rental.ErrDocumentNotFound):
+		writeError(w, http.StatusNotFound, "document_not_found", "Dokumen tidak ditemukan")
+
+	case errors.Is(err, rental.ErrInvalidReason):
+		writeValidationError(w, map[string]string{"reason": "Alasan harus 10-1000 karakter"})
+
+	case errors.Is(err, rental.ErrInvalidPassword):
+		writeError(w, http.StatusUnauthorized, "invalid_password", "Kata sandi admin tidak benar")
+
+	case errors.Is(err, rental.ErrAgreementMissing):
+		writeError(w, http.StatusNotFound, "agreement_not_found", "Surat perjanjian tidak tersedia")
 
 	default:
 		slog.Error("kesalahan rental", "operation", operation, "error", err)

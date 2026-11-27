@@ -75,6 +75,106 @@ type Message struct {
 	Sender    Party     `json:"sender"`
 	Body      string    `json:"body"`
 	CreatedAt time.Time `json:"created_at"`
+
+	// Metadata hanya untuk tampilan admin; body sengaja tidak dikirim.
+	BodyLength int    `json:"body_length,omitempty"`
+	BodySHA256 string `json:"body_sha256,omitempty"`
+
+	// Field internal untuk dekripsi di service. Tidak pernah di-serialize.
+	Ciphertext []byte `json:"-"`
+	Nonce      []byte `json:"-"`
+	KeyVersion int    `json:"-"`
+}
+
+// AdminMessage tidak memuat isi pesan, hanya metadata.
+type AdminMessage struct {
+	ID         string    `json:"id"`
+	Sender     Party     `json:"sender"`
+	BodyLength int       `json:"body_length"`
+	BodySHA256 string    `json:"body_sha256"`
+	CreatedAt  time.Time `json:"created_at"`
+}
+
+type Document struct {
+	ID          string    `json:"id"`
+	RentalID    string    `json:"rental_id"`
+	Type        string    `json:"type"`
+	MimeType    string    `json:"mime_type"`
+	SizeBytes   int64     `json:"size_bytes"`
+	UploadedBy  *Party    `json:"uploaded_by,omitempty"`
+	Visibility  string    `json:"visibility"`
+	CreatedAt   time.Time `json:"created_at"`
+	DownloadURL string    `json:"download_url,omitempty"`
+}
+
+type CODState struct {
+	AgreedAt            *time.Time `json:"agreed_at,omitempty"`
+	HandoverAt          *time.Time `json:"handover_at,omitempty"`
+	HandoverConfirmedAt *time.Time `json:"handover_confirmed_at,omitempty"`
+	ReturnAt            *time.Time `json:"return_at,omitempty"`
+	ReturnConfirmedAt   *time.Time `json:"return_confirmed_at,omitempty"`
+	AmountDue           *int       `json:"amount_due,omitempty"`
+	AmountPaid          *int       `json:"amount_paid,omitempty"`
+	PaymentMethod       *string    `json:"payment_method,omitempty"`
+	SettledAt           *time.Time `json:"settled_at,omitempty"`
+	Notes               *string    `json:"notes,omitempty"`
+}
+
+type CODSummary struct {
+	CODState
+	RentalID  string `json:"rental_id"`
+	Location  string `json:"location,omitempty"`
+	OwnerNIM  string `json:"owner_nim,omitempty"`
+	RenterNIM string `json:"renter_nim,omitempty"`
+}
+
+type CODProofInput struct {
+	Note string `json:"note"`
+}
+
+type CODSettleInput struct {
+	AmountPaid    int    `json:"amount_paid"`
+	PaymentMethod string `json:"payment_method"`
+	Notes         string `json:"notes"`
+}
+
+type DocumentFilter struct {
+	RentalID string
+	Type     string
+}
+
+type RentalStats struct {
+	Total       int            `json:"total"`
+	ByStatus    map[string]int `json:"by_status"`
+	Overdue     int            `json:"overdue"`
+	Documents   int            `json:"documents"`
+	StorageByte int64          `json:"storage_bytes"`
+}
+
+type HistoryMonth struct {
+	Month     string `json:"month"`
+	Total     int    `json:"total"`
+	Value     int    `json:"total_value"`
+	Completed int    `json:"completed"`
+	Cancelled int    `json:"cancelled"`
+}
+
+type HistorySummary struct {
+	Year   int            `json:"year"`
+	Months []HistoryMonth `json:"months"`
+	Total  int            `json:"total"`
+	Value  int            `json:"total_value"`
+}
+
+type RentalFilter struct {
+	Role    string
+	Status  string
+	From    string
+	To      string
+	Query   string
+	Overdue bool
+	Limit   int
+	Offset  int
 }
 
 type Notification struct {
@@ -139,4 +239,10 @@ var (
 	ErrChatClosed        = errors.New("chat sudah ditutup untuk rental ini")
 	ErrInvalidBody       = errors.New("isi pesan tidak valid")
 	ErrAgreementMissing  = errors.New("file perjanjian tidak tersedia")
+	ErrCODIncomplete     = errors.New("serah terima dan pengembalian belum lengkap")
+	ErrInvalidCODState   = errors.New("transisi COD tidak valid")
+	ErrInvalidReason     = errors.New("alasan wajib minimal 10 karakter")
+	ErrInvalidPassword   = errors.New("password admin tidak benar")
+	ErrDocumentNotFound  = errors.New("dokumen tidak ditemukan")
+	ErrMissingProof      = errors.New("bukti foto wajib diunggah")
 )

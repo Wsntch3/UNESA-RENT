@@ -1,9 +1,9 @@
 package auth
 
 import (
-	"errors"
 	"crypto/rand"
 	"encoding/hex"
+	"errors"
 	"fmt"
 	"time"
 
@@ -18,9 +18,9 @@ var (
 )
 
 type Claims struct {
-	Email string `json:"email"`
-	Name  string `json:"name"`
-	Role  string `json:"role"`
+	Email        string `json:"email"`
+	Name         string `json:"name"`
+	Role         string `json:"role"`
 	TokenVersion int    `json:"tv"`
 	jwt.RegisteredClaims
 }
@@ -48,9 +48,9 @@ func (t *TokenIssuer) Issue(userID, email, name, role string, tokenVersion int) 
 	expiresAt = now.Add(t.ttl)
 
 	claims := Claims{
-		Email: email,
-		Name:  name,
-		Role:  role,
+		Email:        email,
+		Name:         name,
+		Role:         role,
 		TokenVersion: tokenVersion,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    issuer,
@@ -77,7 +77,7 @@ func (t *TokenIssuer) Parse(raw string) (*Claims, error) {
 		jwt.WithIssuer(issuer),
 		jwt.WithExpirationRequired(),
 		jwt.WithIssuedAt(),
-		jwt.WithLeeway(30 * time.Second),
+		jwt.WithLeeway(30*time.Second),
 	)
 	if err != nil {
 		if errors.Is(err, jwt.ErrTokenExpired) {

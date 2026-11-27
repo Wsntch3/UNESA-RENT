@@ -103,6 +103,6 @@ func (f *fakeStore) Events(ctx context.Context, rentalID string) ([]Event, error
 	return nil, nil
 }
 
-func (f *fakeStore) SaveMessage(ctx context.Context, rentalID, senderID, body string) (Message, error) {
-	return Message{ID: "m1", RentalID: rentalID, Body: body, CreatedAt: time.Now()}, nil
+func (f *fakeStore) SaveMessage(ctx context.Context, rentalID, senderID string, ciphertext, nonce []byte, version, length int, sha256 string) (Message, error) {
+	return Message{ID: "m1", RentalID: rentalID, BodyLength: length, BodySHA256: sha256, CreatedAt: time.Now()}, nil
 }
