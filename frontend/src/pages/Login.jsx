@@ -201,7 +201,7 @@ export default function Login({ next }) {
           <Icon name="info" filled />
           <div className="alert-body">
             Satu akun untuk <strong>menyewa perlengkapan</strong> sekaligus{' '}
-            <strong>menyewakan alat praktikum</strong>. Verifikasi KTM dilakukan setelah daftar.
+            <strong>menyewakan barangmu</strong>. Verifikasi KTM dilakukan setelah pendaftaran.
           </div>
         </div>
 
