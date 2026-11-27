@@ -220,23 +220,6 @@ export default function Login({ next }) {
           </span>
         </div>
 
-        <div className="mock-item">
-          <div className="mock-thumb">
-            <Icon name="devices" />
-          </div>
-          <div>
-            <span className="tiny muted" style={{ textTransform: 'uppercase', letterSpacing: '.06em', fontWeight: 700 }}>
-              Alat lab tersedia
-            </span>
-            <h3 className="card-title mt-1">Multimeter Digital Sanwa CD800a</h3>
-            <p className="tiny muted mt-1">Kondisi 98% terkalibrasi, include probe & cover.</p>
-            <div className="row mt-2">
-              <span className="price">{new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(25000)}</span>
-              <span className="tiny muted">/ hari</span>
-            </div>
-          </div>
-        </div>
-
         <div className="metric-row">
           <div className="metric">
             <strong>KTM</strong>
