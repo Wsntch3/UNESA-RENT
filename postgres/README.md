@@ -29,7 +29,7 @@ Folder `postgres/` berisi:
 - Extension `btree_gist`, `pg_trgm`, dan `pgcrypto`
 - Migration versioned (`golang-migrate`) dengan up/down
 - Schema untuk identitas, katalog, transaksi sewa, surat pernyataan, dan governance
-- Seed development untuk prodi, kategori, lokasi, akun admin, dan template surat
+- Seed referensi produksi (`seed/reference.sql`) dan seed demo lokal (`seed/dev_seed.sql`)
 - Constraint database untuk aturan bisnis yang tidak boleh dilanggar aplikasi
 
 Schema dijalankan otomatis saat container dibuat pertama kali, lalu migration
@@ -63,7 +63,8 @@ postgres/
 │   ├── 0009_rental_chat.up.sql
 │   └── 0009_rental_chat.down.sql
 ├── seed/
-│   └── dev_seed.sql
+│   ├── reference.sql            # produksi: prodi, kategori, lokasi
+│   └── dev_seed.sql             # HANYA lokal: akun/listing/rental demo
 ├── .env.example
 ├── docker-compose.yml
 └── README.md
@@ -74,7 +75,8 @@ postgres/
 | `initdb/000_extensions.sql` | Extension yang dibutuhkan schema |
 | `migrations/*.up.sql` | Perubahan schema ke depan |
 | `migrations/*.down.sql` | Rollback migration |
-| `seed/dev_seed.sql` | Data development (idempotent) |
+| `seed/reference.sql` | Data referensi produksi (idempotent) |
+| `seed/dev_seed.sql` | Data development lengkap; hanya untuk lokal (idempotent) |
 | `docker-compose.yml` | PostgreSQL, healthcheck, volume, dan service migrate |
 
 ---
@@ -100,7 +102,8 @@ Dari root proyek:
 
 ```bash
 make db-up       # docker compose up -d (sekaligus migration)
-make db-seed     # seed data development
+make db-seed         # seed referensi produksi (reference.sql)
+make db-seed-dev     # seed data demo; hanya untuk lokal
 make db-down     # hentikan container, data tetap ada
 make db-reset    # hapus volume + buat ulang + migration
 ```

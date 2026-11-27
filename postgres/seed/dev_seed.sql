@@ -1,4 +1,5 @@
 -- seed/dev_seed.sql
+-- HANYA UNTUK LOKAL. JANGAN DIJALANKAN DI PRODUKSI.
 -- Seed development. Aman dijalankan berulang (idempotent).
 --
 -- Format NIM UNESA: AA FF PPP J UUU (11 digit).

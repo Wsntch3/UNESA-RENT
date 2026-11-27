@@ -1,0 +1,715 @@
+<!DOCTYPE html>
+
+<html lang="id"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0" name="viewport"/><meta content="web_dashboard" name="shell-type"/><link href="https://fonts.googleapis.com" rel="preconnect"/><link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/><style>@layer base{html,body{margin:0;padding:0;}body{overscroll-behavior:none;}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config={darkMode:"class",theme:{extend:{"colors":{"danger":"#E53935","on-primary-fixed":"#000d60","on-tertiary-fixed-variant":"#005237","primary-soft":"#E9EDFF","secondary-fixed-dim":"#edc21c","body-muted":"#7D7D7D","surface-variant":"#e5e2e1","primary":"#0026cb","tertiary-container":"#006847","surface":"#fcf9f8","on-secondary-container":"#715b00","lavender":"#F3BAFD","on-surface-variant":"#444656","secondary-fixed":"#ffe082","verified-badge":"#2A44E8","tertiary-fixed":"#53feba","inverse-primary":"#bcc3ff","on-primary-fixed-variant":"#0028d3","ink-soft":"#2E2E2E","on-primary-container":"#ccd0ff","on-error-container":"#93000a","tertiary":"#004e34","ink":"#1A1A1A","background":"#fcf9f8","secondary":"#725c00","primary-fixed-dim":"#bcc3ff","surface-container-highest":"#e5e2e1","inverse-surface":"#313030","secondary-container":"#ffd331","error":"#ba1a1a","tertiary-fixed-dim":"#25e1a0","error-container":"#ffdad6","on-secondary-fixed":"#231b00","on-tertiary-fixed":"#002114","success":"#10B981","on-secondary-fixed-variant":"#564500","on-secondary":"#ffffff","surface-subtle":"#F5F3F3","outline":"#757687","canvas":"#FFFAF5","on-surface":"#1c1b1b","on-tertiary-container":"#3ceeac","outline-variant":"#c5c5d8","surface-container-low":"#f6f3f2","border-muted":"#D8D8D8","on-tertiary":"#ffffff","primary-deep":"#2037BE","inverse-on-surface":"#f3f0ef","border-ink":"#2E2E2E","surface-container":"#f0eded","on-background":"#1c1b1b","surface-bright":"#fcf9f8","body":"#5F5F5F","canvas-white":"#FFFFFF","surface-container-lowest":"#ffffff","surface-container-high":"#eae7e7","surface-dim":"#dcd9d9","on-error":"#ffffff","cyan":"#22D9F2","primary-container":"#2a44e8","primary-fixed":"#dfe0ff","surface-tint":"#2f48eb","on-primary":"#ffffff"},"borderRadius":{"DEFAULT":"0.25rem","lg":"0.5rem","xl":"0.75rem","full":"9999px"},"spacing":{"space-sm":"0.5rem","space-md":"1rem","gutter-desktop":"1.5rem","margin-desktop":"3rem","space-xl":"2rem","margin":"1rem","space-2xl":"3rem","margin-tablet":"2rem","space-xs":"0.25rem","space-lg":"1.5rem","gutter":"1rem"},"fontFamily":{"section-heading":["Inter"],"body":["Inter"],"display-hero-mobile":["Inter"],"caption-bold":["Inter"],"caption":["Inter"],"card-heading":["Inter"],"hero-display":["Inter"],"label-button":["Inter"],"body-default":["Inter"],"button":["Inter"],"body-medium":["Inter"],"display-hero":["Inter"]},"fontSize":{"section-heading":["24px",{"lineHeight":"1.2","letterSpacing":"-0.6px","fontWeight":"700"}],"body":["14px",{"lineHeight":"1.45","fontWeight":"400"}],"display-hero-mobile":["28px",{"lineHeight":"32px","letterSpacing":"-0.8px","fontWeight":"700"}],"caption-bold":["12px",{"lineHeight":"16.8px","letterSpacing":"0.2px","fontWeight":"700"}],"caption":["12px",{"lineHeight":"1.4","letterSpacing":"0px","fontWeight":"400"}],"card-heading":["16px",{"lineHeight":"1.3","letterSpacing":"-0.2px","fontWeight":"700"}],"hero-display":["36px",{"lineHeight":"1.1","letterSpacing":"-1.2px","fontWeight":"700"}],"label-button":["14px",{"lineHeight":"16.1px","letterSpacing":"0px","fontWeight":"600"}],"body-default":["14px",{"lineHeight":"20.3px","letterSpacing":"0px","fontWeight":"400"}],"button":["14px",{"lineHeight":"1.15","fontWeight":"600"}],"body-medium":["14px",{"lineHeight":"20.3px","letterSpacing":"0px","fontWeight":"500"}],"display-hero":["36px",{"lineHeight":"39.6px","letterSpacing":"-1.2px","fontWeight":"700"}]}}}}</script></head><body class="bg-canvas font-body text-on-surface antialiased"><aside class="fixed left-0 top-0 h-full w-[260px] bg-canvas-white z-50 flex flex-col border-r border-ink-soft/10"><div class="h-16 px-5 flex items-center justify-between border-b border-ink-soft/10"><div class="flex items-center gap-2"><span class="font-section-heading text-card-heading text-ink tracking-tight">UNESA Rent</span><span class="px-2 py-0.5 rounded-full bg-primary-container text-on-primary font-caption-bold text-caption text-[11px] tracking-wide">Admin FT</span></div></div><div class="flex-1 px-3 py-4 overflow-y-auto"><div class="px-3 pb-2 text-[11px] font-caption-bold uppercase tracking-wider text-body-muted">Menu Utama</div><nav class="flex flex-col gap-1" data-active-classes="bg-primary-soft text-primary font-body-medium rounded-xl border-l-4 border-primary shadow-sm"><a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-subtle hover:text-on-surface transition-colors font-body-default text-body" data-path="dashboard" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">dashboard</span><span>Dashboard</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-subtle hover:text-on-surface transition-colors font-body-default text-body" data-path="verifikasi-ktm" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">verified</span><span>Verifikasi KTM</span></div><span class="px-2 py-0.5 rounded-full bg-secondary-container text-on-secondary-container font-caption-bold text-caption text-[11px]">3 Menunggu</span></a><a aria-current="page" class="flex items-center justify-between px-3 py-2.5 transition-colors bg-primary-soft text-primary font-body-medium rounded-xl border-l-4 border-primary shadow-sm" data-path="pengguna" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">group</span><span>Pengguna</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-subtle hover:text-on-surface transition-colors font-body-default text-body" data-path="listing-barang" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">inventory_2</span><span>Listing Barang</span></div></a><a class="flex items-center justify-between px-3 py-2.5 rounded-xl text-on-surface-variant hover:bg-surface-subtle hover:text-on-surface transition-colors font-body-default text-body" data-path="laporan" href="#"><div class="flex items-center gap-3"><span class="material-symbols-outlined text-[20px]">warning</span><span>Laporan</span></div><span class="px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-bold text-caption text-[11px]">2 Baru</span></a></nav></div><div class="p-3 border-t border-ink-soft/10 bg-surface-subtle/50 flex flex-col gap-3"><a class="flex items-center gap-2 px-3 py-2 rounded-xl text-ink font-body-medium text-body hover:bg-canvas-white hover:text-primary transition-colors border border-ink-soft/15" data-path="marketplace" href="#"><span class="material-symbols-outlined text-[18px]">arrow_back</span><span>Kembali ke Marketplace</span></a><div class="px-2 pt-1"><div class="text-ink font-caption-bold text-caption text-[12px]">Admin BEM FT UNESA</div><div class="text-body-muted font-caption text-caption text-[11px]">Role: Moderator / Verifikator</div></div></div></aside><div class="pl-[260px]"><header class="fixed top-0 left-[260px] right-0 h-16 bg-canvas/90 backdrop-blur-md border-b border-ink-soft/10 z-40 flex items-center justify-between px-8"><div class="flex items-center gap-2"><span class="material-symbols-outlined text-body-muted text-[18px]">domain</span><span class="font-body-medium text-body text-ink">Portal Administrasi Kampus FT</span></div><div class="flex items-center gap-4"><div class="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-canvas-white border border-ink-soft/10"><span class="w-2 h-2 rounded-full bg-success animate-pulse"></span><span class="font-caption-bold text-caption text-ink">Sistem Terhubung</span></div><button class="relative p-2 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-canvas-white transition-colors" type="button"><span class="material-symbols-outlined text-[22px]">notifications</span><span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-danger rounded-full ring-2 ring-canvas"></span></button><div class="flex items-center gap-2 pl-2 border-l border-ink-soft/15"><div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center"><span class="material-symbols-outlined text-on-primary text-[18px]">person</span></div><div class="hidden md:flex flex-col text-left"><span class="font-caption-bold text-caption text-ink leading-none">Admin FT UNESA</span><span class="font-caption text-caption text-body-muted leading-tight text-[11px]">S1 Teknik</span></div><span class="material-symbols-outlined text-body-muted text-[18px]">expand_more</span></div></div></header><main class="relative pt-16 bg-canvas"><div class="max-w-[1360px] mx-auto p-8"><div class="flex flex-col w-full gap-6">
+<!-- Top Banner & Quick Context -->
+<div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 pb-2">
+<div>
+<div class="flex items-center gap-2 mb-1.5">
+<span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-secondary-container text-ink font-caption-bold text-caption">
+<span class="material-symbols-outlined text-[15px] text-ink">security</span>
+          Fakultas Teknik UNESA
+        </span>
+<span class="text-body-muted font-caption text-caption">• Log Pemantauan Real-time</span>
+</div>
+<h1 class="font-section-heading text-section-heading text-ink">Moderasi Komunitas &amp; Listing Barang</h1>
+<p class="font-body text-body text-body-muted mt-1 max-w-2xl">
+        Kelola akun civitas akademika FT dan pantau kualitas serta kepatuhan barang yang disewakan di etalase UNESA Rent.
+      </p>
+</div>
+<!-- Live Status Overview Metrics -->
+<div class="flex items-center gap-3">
+<div class="bg-canvas-white rounded-xl p-3.5 shadow-sm flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-primary-soft flex items-center justify-center text-primary-container">
+<span class="material-symbols-outlined text-[22px]">badge</span>
+</div>
+<div>
+<div class="font-caption-bold text-caption text-body-muted uppercase tracking-wider">Antrean KTM</div>
+<div class="font-section-heading text-card-heading text-ink flex items-center gap-1.5">
+<span>7 Akun</span>
+<span class="w-2 h-2 rounded-full bg-secondary-container"></span>
+</div>
+</div>
+</div>
+<div class="bg-canvas-white rounded-xl p-3.5 shadow-sm flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-lg bg-surface-subtle flex items-center justify-center text-ink">
+<span class="material-symbols-outlined text-[22px]">build_circle</span>
+</div>
+<div>
+<div class="font-caption-bold text-caption text-body-muted uppercase tracking-wider">Listing Butuh Cek</div>
+<div class="font-section-heading text-card-heading text-ink flex items-center gap-1.5">
+<span>4 Alat</span>
+<span class="w-2 h-2 rounded-full bg-danger animate-pulse"></span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Segmented Tabs Navigation -->
+<div class="bg-surface-subtle p-1.5 rounded-2xl flex items-center justify-between gap-2 max-w-xl">
+<button class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-medium text-body transition-all bg-canvas-white text-ink shadow-sm" id="tabUsersBtn" onclick="switchMainTab('users')" type="button">
+<span class="material-symbols-outlined text-[18px] text-primary-container">school</span>
+<span>Pengguna Mahasiswa</span>
+<span class="px-2 py-0.5 rounded-full bg-primary-soft text-primary-container font-caption-bold text-caption text-[11px]">424</span>
+</button>
+<button class="flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-default text-body text-body-muted hover:text-ink transition-all" id="tabListingsBtn" onclick="switchMainTab('listings')" type="button">
+<span class="material-symbols-outlined text-[18px]">inventory_2</span>
+<span>Listing Barang</span>
+<span class="px-2 py-0.5 rounded-full bg-canvas-white text-ink font-caption-bold text-caption text-[11px]">128</span>
+</button>
+</div>
+<!-- TAB CONTENT 1: Manajemen Pengguna -->
+<div class="flex flex-col gap-6" id="usersTabContent">
+<!-- Filters & Action Bar -->
+<div class="bg-canvas-white rounded-2xl p-4 shadow-sm flex flex-col xl:flex-row items-stretch xl:items-center justify-between gap-3">
+<!-- Search -->
+<div class="relative flex-1 min-w-[280px]">
+<span class="material-symbols-outlined absolute left-3.5 top-1/2 -translate-y-1/2 text-body-muted text-[20px]">search</span>
+<input class="w-full pl-10 pr-4 py-2.5 rounded-xl bg-surface-subtle font-body-default text-body text-ink placeholder-body-muted focus:outline-none focus:bg-canvas-white transition-all text-[13.5px]" id="userSearchInput" placeholder="Cari nama mahasiswa, NIM terpotong, atau email..." type="text"/>
+</div>
+<!-- Filters Dropdown Group -->
+<div class="flex flex-wrap items-center gap-2.5">
+<!-- Filter Status Akun -->
+<div class="relative">
+<select class="appearance-none pl-3 pr-8 py-2 rounded-xl bg-surface-subtle text-ink font-body-medium text-body text-[13px] hover:bg-surface-variant/40 transition-colors focus:outline-none cursor-pointer">
+<option>Status Akun: Semua</option>
+<option>Aktif Normal</option>
+<option>Dalam Peninjauan</option>
+<option>Ditangguhkan</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-body-muted text-[16px]">expand_more</span>
+</div>
+<!-- Filter Status KTM -->
+<div class="relative">
+<select class="appearance-none pl-3 pr-8 py-2 rounded-xl bg-surface-subtle text-ink font-body-medium text-body text-[13px] hover:bg-surface-variant/40 transition-colors focus:outline-none cursor-pointer">
+<option>Status KTM: Semua</option>
+<option>Terverifikasi (348)</option>
+<option>Menunggu (7)</option>
+<option>Belum Verifikasi (69)</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-body-muted text-[16px]">expand_more</span>
+</div>
+<!-- Sort -->
+<div class="relative">
+<select class="appearance-none pl-3 pr-8 py-2 rounded-xl bg-surface-subtle text-ink font-body-medium text-body text-[13px] hover:bg-surface-variant/40 transition-colors focus:outline-none cursor-pointer">
+<option>Urutan: Terbaru Mendaftar</option>
+<option>Transaksi Terbanyak</option>
+<option>Tingkat Laporan Tertinggi</option>
+<option>Nama A-Z</option>
+</select>
+<span class="material-symbols-outlined pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 text-body-muted text-[16px]">sort</span>
+</div>
+<!-- Refresh / Reset -->
+<button class="p-2 rounded-xl bg-surface-subtle hover:bg-surface-variant/40 text-ink transition-colors flex items-center justify-center" title="Segarkan Data" type="button">
+<span class="material-symbols-outlined text-[18px]">refresh</span>
+</button>
+</div>
+</div>
+<!-- Main Grid: Users Table + Detail Drawer -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- Table Section (8 Cols) -->
+<div class="lg:col-span-8 flex flex-col bg-canvas-white rounded-2xl shadow-sm overflow-hidden">
+<div class="px-5 py-4 flex items-center justify-between bg-canvas-white">
+<div class="flex items-center gap-2">
+<span class="font-section-heading text-card-heading text-ink">Daftar Civitas Aktif</span>
+<span class="px-2 py-0.5 rounded-full bg-surface-subtle text-body-muted font-caption-bold text-caption text-[11px]">FT Ketintang</span>
+</div>
+<span class="text-caption font-caption text-body-muted">Menampilkan 5 dari 424 mahasiswa</span>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-subtle text-body-muted font-caption-bold text-caption text-[11px] uppercase tracking-wider">
+<th class="py-3 px-4">Mahasiswa</th>
+<th class="py-3 px-3">Program Studi</th>
+<th class="py-3 px-3">Status Verifikasi</th>
+<th class="py-3 px-3">Status Akun</th>
+<th class="py-3 px-3">Transaksi Sewa</th>
+<th class="py-3 px-3">Terdaftar</th>
+<th class="py-3 px-4 text-right">Aksi</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-subtle font-body-default text-body text-[13px]">
+<!-- Row 1: Active Selected Target -->
+<tr class="hover:bg-primary-soft/40 transition-colors cursor-pointer bg-primary-soft/20" id="row-dimas" onclick="selectUser('dimas')">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-primary text-on-primary font-caption-bold flex items-center justify-center text-[12px] shadow-sm">
+                      DA
+                    </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-medium text-ink truncate font-semibold">Dimas Arya Pradana</span>
+<span class="font-caption text-caption text-body-muted truncate text-[11px]">dimas.22051@mhs.unesa.ac.id</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="text-ink font-body-medium text-[12.5px]">S1 Teknik Elektro</span>
+<span class="text-caption font-caption text-body-muted text-[11px]">Angkatan 2022</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success/15 text-tertiary-container font-caption-bold text-caption text-[11px]">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-soft text-primary-deep font-caption-bold text-caption text-[11px]">
+                    Aktif Normal
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="font-body-medium text-ink text-[12.5px]">5 Selesai</span>
+<span class="font-caption text-caption text-success text-[11px] font-medium">100% Tepat Waktu</span>
+</div>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap text-body-muted text-[12px]">
+                  12 Okt 2026
+                </td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-3 py-1.5 rounded-lg bg-canvas-white hover:bg-surface-subtle text-ink font-body-medium text-caption text-[12px] shadow-sm inline-flex items-center gap-1 transition-all" onclick="event.stopPropagation(); selectUser('dimas')" type="button">
+<span>Kelola</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 2 -->
+<tr class="hover:bg-surface-subtle/70 transition-colors cursor-pointer" id="row-rian" onclick="selectUser('rian')">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-subtle text-ink font-caption-bold flex items-center justify-center text-[12px]">
+                      RH
+                    </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-medium text-ink truncate font-semibold">Rian Hidayat</span>
+<span class="font-caption text-caption text-body-muted truncate text-[11px]">rian.hid@mhs.unesa.ac.id</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="text-ink font-body-medium text-[12.5px]">S1 Teknik Elektro</span>
+<span class="text-caption font-caption text-body-muted text-[11px]">Angkatan 2023</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success/15 text-tertiary-container font-caption-bold text-caption text-[11px]">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-primary-soft text-primary-deep font-caption-bold text-caption text-[11px]">
+                    Aktif Normal
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="font-body-medium text-ink text-[12.5px]">4 Selesai</span>
+<span class="font-caption text-caption text-primary-container text-[11px] font-medium">1 Berjalan</span>
+</div>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap text-body-muted text-[12px]">
+                  15 Okt 2026
+                </td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-surface-variant/40 text-ink font-body-medium text-caption text-[12px] inline-flex items-center gap-1 transition-all" onclick="event.stopPropagation(); selectUser('rian')" type="button">
+<span>Kelola</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 3: Flagged Attention -->
+<tr class="hover:bg-secondary-container/10 transition-colors cursor-pointer bg-secondary-container/5" id="row-fajar" onclick="selectUser('fajar')">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-secondary-container text-ink font-caption-bold flex items-center justify-center text-[12px]">
+                      FR
+                    </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-medium text-ink truncate font-semibold">Fajar Ramadhani</span>
+<span class="font-caption text-caption text-body-muted truncate text-[11px]">fajar.r@mhs.unesa.ac.id</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="text-ink font-body-medium text-[12.5px]">S1 Pendidikan TI</span>
+<span class="text-caption font-caption text-body-muted text-[11px]">Angkatan 2021</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-success/15 text-tertiary-container font-caption-bold text-caption text-[11px]">
+<span class="material-symbols-outlined text-[13px]">verified</span>
+                    Terverifikasi
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed-variant font-caption-bold text-caption text-[11px]">
+<span class="w-1.5 h-1.5 rounded-full bg-secondary"></span>
+                    Perlu Perhatian
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="font-body-medium text-ink text-[12.5px]">8 Selesai</span>
+<span class="font-caption text-caption text-danger text-[11px] font-bold">1 Terlapor Rusak</span>
+</div>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap text-body-muted text-[12px]">
+                  28 Sep 2026
+                </td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-3 py-1.5 rounded-lg bg-secondary-container hover:bg-secondary-fixed-dim text-ink font-caption-bold text-caption text-[12px] inline-flex items-center gap-1 shadow-sm transition-all" onclick="event.stopPropagation(); selectUser('fajar')" type="button">
+<span>Tinjau</span>
+<span class="material-symbols-outlined text-[14px]">flag</span>
+</button>
+</td>
+</tr>
+<!-- Row 4: Unverified & Held -->
+<tr class="hover:bg-surface-subtle/70 transition-colors cursor-pointer" id="row-rizki" onclick="selectUser('rizki')">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-variant text-body-muted font-caption-bold flex items-center justify-center text-[12px]">
+                      RP
+                    </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-medium text-ink truncate font-semibold">Rizki Pratama</span>
+<span class="font-caption text-caption text-body-muted truncate text-[11px]">rizki.p@mhs.unesa.ac.id</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="text-ink font-body-medium text-[12.5px]">S1 Teknik Mesin</span>
+<span class="text-caption font-caption text-body-muted text-[11px]">Angkatan 2024</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-subtle text-body-muted font-caption-bold text-caption text-[11px]">
+                    Belum Verifikasi
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-error-container text-on-error-container font-caption-bold text-caption text-[11px]">
+                    Listing Tertahan
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="text-body-muted text-[12px]">0 Transaksi</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap text-body-muted text-[12px]">
+                  02 Nov 2026
+                </td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-surface-variant/40 text-ink font-body-medium text-caption text-[12px] inline-flex items-center gap-1 transition-all" onclick="event.stopPropagation(); selectUser('rizki')" type="button">
+<span>Kelola</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</td>
+</tr>
+<!-- Row 5: Action Required on KTM -->
+<tr class="hover:bg-surface-subtle/70 transition-colors cursor-pointer" id="row-hendra" onclick="selectUser('hendra')">
+<td class="py-3.5 px-4">
+<div class="flex items-center gap-3">
+<div class="w-9 h-9 rounded-xl bg-surface-subtle text-ink font-caption-bold flex items-center justify-center text-[12px]">
+                      HW
+                    </div>
+<div class="flex flex-col min-w-0">
+<span class="font-body-medium text-ink truncate font-semibold">Hendra Wijaya</span>
+<span class="font-caption text-caption text-body-muted truncate text-[11px]">hendra.w@mhs.unesa.ac.id</span>
+</div>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<div class="flex flex-col">
+<span class="text-ink font-body-medium text-[12.5px]">S1 Teknik Sipil</span>
+<span class="text-caption font-caption text-body-muted text-[11px]">Angkatan 2023</span>
+</div>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-secondary-fixed text-on-secondary-fixed font-caption-bold text-caption text-[11px]">
+<span class="material-symbols-outlined text-[13px]">error</span>
+                    Perlu Perbaikan
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="inline-flex items-center px-2 py-0.5 rounded-full bg-surface-subtle text-body-muted font-caption-bold text-caption text-[11px]">
+                    Akses Terbatas
+                  </span>
+</td>
+<td class="py-3.5 px-3">
+<span class="text-body-muted text-[12px]">0 Transaksi</span>
+</td>
+<td class="py-3.5 px-3 whitespace-nowrap text-body-muted text-[12px]">
+                  08 Nov 2026
+                </td>
+<td class="py-3.5 px-4 text-right">
+<button class="px-3 py-1.5 rounded-lg bg-surface-subtle hover:bg-surface-variant/40 text-ink font-body-medium text-caption text-[12px] inline-flex items-center gap-1 transition-all" onclick="event.stopPropagation(); selectUser('hendra')" type="button">
+<span>Kelola</span>
+<span class="material-symbols-outlined text-[14px]">chevron_right</span>
+</button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Table Pagination Bar -->
+<div class="px-5 py-3.5 bg-surface-subtle/40 flex items-center justify-between text-[12px] font-caption text-body-muted">
+<div class="flex items-center gap-2">
+<span>Baris per halaman:</span>
+<span class="font-caption-bold text-ink bg-canvas-white px-2 py-0.5 rounded shadow-sm">5</span>
+</div>
+<div class="flex items-center gap-4">
+<span>1-5 dari 424 data</span>
+<div class="flex items-center gap-1">
+<button class="p-1 rounded hover:bg-canvas-white text-body-muted disabled:opacity-30 cursor-not-allowed">
+<span class="material-symbols-outlined text-[18px]">chevron_left</span>
+</button>
+<button class="p-1 rounded hover:bg-canvas-white text-ink">
+<span class="material-symbols-outlined text-[18px]">chevron_right</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Action Modal / Detail Drawer Panel (4 Cols) -->
+<div class="lg:col-span-4 flex flex-col gap-4">
+<div class="bg-canvas-white rounded-2xl p-5 shadow-sm flex flex-col gap-5 relative" id="userProfileDrawer">
+<!-- Drawer Header with Status -->
+<div class="flex items-start justify-between">
+<div class="flex items-center gap-3">
+<div class="w-12 h-12 rounded-2xl bg-primary text-on-primary font-section-heading text-card-heading flex items-center justify-center shadow-md" id="drawerAvatar">
+                DA
+              </div>
+<div class="flex flex-col">
+<div class="flex items-center gap-1.5">
+<h3 class="font-section-heading text-card-heading text-ink" id="drawerName">Dimas Arya Pradana</h3>
+<span class="material-symbols-outlined text-verified-badge text-[18px]" title="Civitas Terverifikasi">verified</span>
+</div>
+<span class="font-caption text-caption text-body-muted" id="drawerEmail">dimas.22051@mhs.unesa.ac.id</span>
+</div>
+</div>
+<button class="text-body-muted hover:text-ink p-1 rounded-lg" title="Tutup Ringkasan" type="button">
+<span class="material-symbols-outlined text-[18px]">more_vert</span>
+</button>
+</div>
+<!-- Academic & Identity Badges -->
+<div class="p-3.5 bg-surface-subtle rounded-xl flex flex-col gap-2.5">
+<div class="flex items-center justify-between text-[12px]">
+<span class="font-caption text-body-muted">NIM Kampus:</span>
+<span class="font-caption-bold text-ink font-mono" id="drawerNim">22051204018</span>
+</div>
+<div class="flex items-center justify-between text-[12px]">
+<span class="font-caption text-body-muted">Departemen:</span>
+<span class="font-body-medium text-ink" id="drawerDept">Teknik Elektro (S1)</span>
+</div>
+<div class="flex items-center justify-between text-[12px]">
+<span class="font-caption text-body-muted">Status KTM:</span>
+<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-success/20 text-tertiary-container font-caption-bold text-[10.5px]" id="drawerKtmStatus">
+<span class="material-symbols-outlined text-[12px]">check_circle</span> Terverifikasi BEM FT
+              </span>
+</div>
+</div>
+<!-- Trust & Compliance Metrics (Neo-brutalist accent) -->
+<div class="grid grid-cols-2 gap-2.5">
+<div class="p-3 rounded-xl bg-surface-subtle flex flex-col gap-1">
+<span class="font-caption text-body-muted text-[11px]">Skor Kepatuhan COD</span>
+<div class="flex items-baseline gap-1.5">
+<span class="font-section-heading text-section-heading text-success text-[20px]" id="drawerCodScore">100%</span>
+<span class="font-caption text-caption text-tertiary-container text-[11px]">Tepat Waktu</span>
+</div>
+<!-- Small Inline SVG Gauge Indicator -->
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-success h-full rounded-full" style="width: 100%;"></div>
+</div>
+</div>
+<div class="p-3 rounded-xl bg-surface-subtle flex flex-col gap-1">
+<span class="font-caption text-body-muted text-[11px]">Total Transaksi</span>
+<div class="flex items-baseline gap-1.5">
+<span class="font-section-heading text-section-heading text-primary-container text-[20px]" id="drawerTotalRent">5</span>
+<span class="font-caption text-caption text-body-muted text-[11px]">Selesai Bersih</span>
+</div>
+<div class="w-full bg-surface-variant h-1.5 rounded-full overflow-hidden mt-1">
+<div class="bg-primary-container h-full rounded-full" style="width: 90%;"></div>
+</div>
+</div>
+</div>
+<!-- Active Rental Preview Card -->
+<div class="flex flex-col gap-2">
+<div class="flex items-center justify-between">
+<span class="font-caption-bold text-caption text-ink uppercase tracking-wider text-[11px]">Aktivitas Rental Terakhir</span>
+<span class="font-caption text-caption text-primary-container hover:underline cursor-pointer text-[11px]">Detail Log</span>
+</div>
+<div class="p-3 rounded-xl bg-surface-subtle flex items-center gap-3">
+<div class="w-12 h-12 rounded-lg bg-surface-variant flex-shrink-0 overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Multimeter Sanwa CD800a digital testing device lying on an engineering lab table with red and black probes with soft daylight" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBNH7tYaD_d-lNUEekn_uK6B5dBcI19Py1uN9SnpXkhBGHLI0rM1FG3qorjGShmdpd2imLaibXFh_1xOhDMlmBuYxuP_aN7tGJ4tzz-th_H4DzK-6RJCZKSzBZvXrQ-OTg87TWpe5tVK1EWDvN8VwQ9pp8NTYajWeMbkxT3LC0HIvTTcG_TIYXn_4ViEosCvehEyW5JUbd-g-2gS-fK1QQV9ly32bJdqiXChnlYU0ZF"/>
+</div>
+<div class="flex flex-col min-w-0 flex-1">
+<span class="font-body-medium text-ink text-[12.5px] truncate">Multimeter Sanwa CD800a</span>
+<span class="font-caption text-caption text-body-muted text-[11px]">Peminjam: Ardi (Teknik Sipil)</span>
+<span class="font-caption-bold text-caption text-success text-[10.5px]">Dikembalikan tepat kondisi</span>
+</div>
+</div>
+</div>
+<!-- Moderation Actions CTA Group -->
+<div class="flex flex-col gap-2 pt-2 border-t border-surface-subtle">
+<span class="font-caption-bold text-caption text-body-muted uppercase tracking-wider text-[11px]">Opsi Moderasi Akun</span>
+<button class="w-full flex items-center justify-center gap-2 py-2.5 px-3 rounded-xl bg-surface-subtle hover:bg-surface-variant text-ink font-label-button text-body text-[13px] transition-all" onclick="showNotification('Pesan peringatan sistem terkirim ke email Dimas.')" type="button">
+<span class="material-symbols-outlined text-[17px]">outgoing_mail</span>
+<span>Kirim Peringatan Sistem</span>
+</button>
+<div class="grid grid-cols-2 gap-2">
+<button class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-canvas-white hover:bg-surface-subtle text-body-muted hover:text-ink font-body-medium text-caption text-[11.5px] transition-all" onclick="showNotification('Status pengajuan KTM Dimas telah direset.')" type="button">
+<span class="material-symbols-outlined text-[15px]">history_edu</span>
+<span>Reset KTM</span>
+</button>
+<button class="flex items-center justify-center gap-1.5 py-2 px-2.5 rounded-xl bg-error-container/40 hover:bg-error-container text-error font-body-medium text-caption text-[11.5px] transition-all" onclick="showNotification('Akun Dimas berhasil dibatasi sementara waktu.')" type="button">
+<span class="material-symbols-outlined text-[15px]">block</span>
+<span>Tangguhkan</span>
+</button>
+</div>
+</div>
+<!-- Live Notification Pill (hidden by default) -->
+<div class="hidden absolute bottom-3 left-4 right-4 p-2.5 rounded-xl bg-ink text-canvas-white font-caption text-caption text-center shadow-lg transition-all" id="actionToast">
+            Perubahan berhasil disimpan!
+          </div>
+</div>
+<!-- Campus Safety Card -->
+<div class="bg-surface-subtle rounded-2xl p-4 flex items-center gap-3">
+<span class="material-symbols-outlined text-[26px] text-primary-container">verified_user</span>
+<div class="flex flex-col">
+<span class="font-caption-bold text-caption text-ink">Prosedur Keamanan BEM FT</span>
+<span class="font-caption text-caption text-body-muted text-[11px]">Setiap tindakan penangguhan akan dikonfirmasi melalui email resmi @unesa.ac.id.</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- TAB CONTENT 2: Listing Barang (Hidden initially, accessible via toggle) -->
+<div class="hidden flex-col gap-6" id="listingsTabContent">
+<div class="bg-canvas-white rounded-2xl p-6 shadow-sm flex flex-col gap-5">
+<div class="flex items-center justify-between">
+<div>
+<h2 class="font-section-heading text-card-heading text-ink">Etalase Alat Praktikum FT UNESA</h2>
+<p class="font-body text-body text-body-muted text-[13px] mt-0.5">Pemantauan 128 listing alat aktif, suku cadang modul laboratorium, dan instrumen ukur.</p>
+</div>
+<div class="flex items-center gap-2">
+<span class="px-3 py-1 rounded-full bg-secondary-container text-ink font-caption-bold text-caption">4 Butuh Review Kelayakan</span>
+</div>
+</div>
+<!-- Listing Cards Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+<!-- Item 1 -->
+<div class="p-4 rounded-xl bg-surface-subtle flex flex-col gap-3">
+<div class="w-full h-36 rounded-lg bg-surface-variant overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Total Station surveying tripod and electronic distance meter on green lawn near engineering lab campus buildings sunny afternoon" src="https://lh3.googleusercontent.com/aida-public/AB6AXuACpGEg90wTSZwRUO5P9Fh25FbrdApSWFfeZZwsfHzRRDIrjIEZ3wPKI8RDUz2BdQjjESgApQCCo92q5BE0fAga-ST-BH0OMyUbUgfNvihzNxkxchBImlZezv_lWI0mVOSuSwIm-3-XGyBTr6GLuYyPOZFPQEfl75mj0dfzB3iEUnI1Th1YWsI4Uet9On1wV-0qiJ66_eGYHjXAcM5YWh-udfIhYmOxugCADPToFP7x"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-canvas-white/95 text-ink font-caption-bold text-[10px]">Teknik Sipil</span>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-body-medium text-ink font-semibold text-[14px]">Total Station Topcon ES-65</h4>
+<span class="font-caption text-caption text-body-muted">Pemilik: Bagus (NIM 2105...) • Rp 75.000 / hari</span>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="font-caption text-caption text-tertiary-container font-medium text-[11px]">Lolos Kurasi Lab Geodesi</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-4 rounded-xl bg-surface-subtle flex flex-col gap-3">
+<div class="w-full h-36 rounded-lg bg-surface-variant overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Digital oscilloscope Rigol benchtop laboratory test equipment showing green square wave signal in university robotics workshop" src="https://lh3.googleusercontent.com/aida-public/AB6AXuA0JYD8UtAAKeoCxnXMXFOY5p1Gis6b55_d5Z0MzsZDh-L5vURiWrdK5dszdsbAhiCMIi02vcADB3TLKsrbvjG0WQTvpeCtImh4uit_uCYl-3wmTw8GbYL6GYQbbdXQAJfSO63AxyRMGECsn3UQXrQyfQUtbVZcBg7K7Uin3i1uZzEbA6g1zBd5pu5YtEqUXMeMOqfHsUBzF-UPgzmQID-u2d7bkGSQNRRZrO6L7TJV"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-canvas-white/95 text-ink font-caption-bold text-[10px]">Teknik Elektro</span>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-body-medium text-ink font-semibold text-[14px]">Digital Oscilloscope 50MHz</h4>
+<span class="font-caption text-caption text-body-muted">Pemilik: Surya (NIM 2205...) • Rp 45.000 / hari</span>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="w-2 h-2 rounded-full bg-secondary"></span>
+<span class="font-caption text-caption text-secondary font-medium text-[11px]">Cek Kalibrasi Diperlukan</span>
+</div>
+</div>
+</div>
+<!-- Item 3 -->
+<div class="p-4 rounded-xl bg-surface-subtle flex flex-col gap-3">
+<div class="w-full h-36 rounded-lg bg-surface-variant overflow-hidden relative">
+<img class="w-full h-full object-cover" data-alt="Set of metal vernier calipers and micrometer screw gauge inside a wooden case on a clean steel workbench" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDEBUGBwr_oZz0dV6H49sUHeEcmF8GB42B5pNFzeK5td3tDAxBikbrntkOfrUETubf4O93T7qIdd6VgVnle4yP6ctzO46qIIeqtfLumLJK04jjCZgcmwp2Sz_Mz0L6BF6ng_N8hhu0lRHWTrDw4WQh2mjN-mlFmtKH71YRaK_zs-M2AQRkScUQqKxjYd8X19K8ZI2L4gYZyXm4PRht4CN3LO7DIPHHkZyORaEnJ72sI"/>
+<span class="absolute top-2 left-2 px-2 py-0.5 rounded-full bg-canvas-white/95 text-ink font-caption-bold text-[10px]">Teknik Mesin</span>
+</div>
+<div class="flex flex-col gap-1">
+<h4 class="font-body-medium text-ink font-semibold text-[14px]">Jangka Sorong Mitutoyo 0.02mm</h4>
+<span class="font-caption text-caption text-body-muted">Pemilik: Ilham (NIM 2305...) • Rp 15.000 / hari</span>
+<div class="flex items-center gap-1.5 mt-2">
+<span class="w-2 h-2 rounded-full bg-success"></span>
+<span class="font-caption text-caption text-tertiary-container font-medium text-[11px]">Siap Dipinjam</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Listing Tab Preview Bottom Banner -->
+<div class="bg-canvas-white rounded-2xl p-5 shadow-sm flex flex-col md:flex-row items-center justify-between gap-4">
+<div class="flex items-center gap-3.5">
+<div class="w-10 h-10 rounded-xl bg-secondary-container text-ink flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-[22px]">category</span>
+</div>
+<div>
+<p class="font-body-medium text-body text-ink font-semibold">
+          Beralih ke tab Moderasi Listing untuk meninjau 128 alat praktikum aktif.
+        </p>
+<p class="font-caption text-caption text-body-muted mt-0.5">
+          Pantau laporan barang rusak, validitas foto barang, atau listing yang ditangguhkan oleh tim verifikator lab FT.
+        </p>
+</div>
+</div>
+<div class="flex items-center gap-3 shrink-0">
+<div class="hidden xl:flex items-center gap-4 text-[12px] font-caption text-body-muted pr-2">
+<span class="flex items-center gap-1"><strong class="text-ink font-caption-bold">128</strong> Listing Tayang</span>
+<span>•</span>
+<span class="flex items-center gap-1"><strong class="text-danger font-caption-bold">4</strong> Butuh Review</span>
+<span>•</span>
+<span class="flex items-center gap-1"><strong class="text-success font-caption-bold">0</strong> Pelanggaran Berat</span>
+</div>
+<button class="px-4 py-2 rounded-xl bg-ink text-canvas-white font-label-button text-body hover:bg-ink-soft transition-all inline-flex items-center gap-2 shadow-sm" onclick="switchMainTab('listings')" type="button">
+<span>Buka Listing Barang</span>
+<span class="material-symbols-outlined text-[16px]">arrow_forward</span>
+</button>
+</div>
+</div>
+</div>
+<script>
+  // Tab Switching Logic
+  function switchMainTab(tab) {
+    const usersTab = document.getElementById('usersTabContent');
+    const listingsTab = document.getElementById('listingsTabContent');
+    const btnUsers = document.getElementById('tabUsersBtn');
+    const btnListings = document.getElementById('tabListingsBtn');
+
+    if (tab === 'users') {
+      usersTab.classList.remove('hidden');
+      usersTab.classList.add('flex');
+      listingsTab.classList.add('hidden');
+      listingsTab.classList.remove('flex');
+
+      btnUsers.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-medium text-body transition-all bg-canvas-white text-ink shadow-sm';
+      btnListings.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-default text-body text-body-muted hover:text-ink transition-all';
+    } else {
+      listingsTab.classList.remove('hidden');
+      listingsTab.classList.add('flex');
+      usersTab.classList.add('hidden');
+      usersTab.classList.remove('flex');
+
+      btnListings.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-medium text-body transition-all bg-canvas-white text-ink shadow-sm';
+      btnUsers.className = 'flex-1 flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl font-body-default text-body text-body-muted hover:text-ink transition-all';
+    }
+  }
+
+  // User Profile Drawer dynamic update
+  const userData = {
+    dimas: {
+      initials: 'DA',
+      name: 'Dimas Arya Pradana',
+      email: 'dimas.22051@mhs.unesa.ac.id',
+      nim: '22051204018',
+      dept: 'S1 Teknik Elektro',
+      ktmStatus: 'Terverifikasi BEM FT',
+      ktmClass: 'bg-success/20 text-tertiary-container',
+      codScore: '100%',
+      totalRent: '5',
+      bgColor: 'bg-primary'
+    },
+    rian: {
+      initials: 'RH',
+      name: 'Rian Hidayat',
+      email: 'rian.hid@mhs.unesa.ac.id',
+      nim: '23051204092',
+      dept: 'S1 Teknik Elektro',
+      ktmStatus: 'Terverifikasi BEM FT',
+      ktmClass: 'bg-success/20 text-tertiary-container',
+      codScore: '98%',
+      totalRent: '4',
+      bgColor: 'bg-primary'
+    },
+    fajar: {
+      initials: 'FR',
+      name: 'Fajar Ramadhani',
+      email: 'fajar.r@mhs.unesa.ac.id',
+      nim: '21051214032',
+      dept: 'S1 Pendidikan TI',
+      ktmStatus: 'Terverifikasi BEM FT',
+      ktmClass: 'bg-secondary-fixed text-on-secondary-fixed-variant',
+      codScore: '82%',
+      totalRent: '8',
+      bgColor: 'bg-secondary-container'
+    },
+    rizki: {
+      initials: 'RP',
+      name: 'Rizki Pratama',
+      email: 'rizki.p@mhs.unesa.ac.id',
+      nim: '24050724011',
+      dept: 'S1 Teknik Mesin',
+      ktmStatus: 'Belum Unggah KTM',
+      ktmClass: 'bg-surface-subtle text-body-muted',
+      codScore: '0%',
+      totalRent: '0',
+      bgColor: 'bg-surface-variant'
+    },
+    hendra: {
+      initials: 'HW',
+      name: 'Hendra Wijaya',
+      email: 'hendra.w@mhs.unesa.ac.id',
+      nim: '23050514023',
+      dept: 'S1 Teknik Sipil',
+      ktmStatus: 'Foto KTM Buram',
+      ktmClass: 'bg-secondary-fixed text-on-secondary-fixed',
+      codScore: '0%',
+      totalRent: '0',
+      bgColor: 'bg-secondary-container'
+    }
+  };
+
+  function selectUser(key) {
+    const user = userData[key];
+    if (!user) return;
+
+    // Reset row selections visually
+    ['dimas', 'rian', 'fajar', 'rizki', 'hendra'].forEach(k => {
+      const row = document.getElementById('row-' + k);
+      if (row) {
+        row.classList.remove('bg-primary-soft/30', 'border-l-4', 'border-primary');
+      }
+    });
+
+    const activeRow = document.getElementById('row-' + key);
+    if (activeRow) {
+      activeRow.classList.add('bg-primary-soft/30');
+    }
+
+    // Update Drawer Elements
+    document.getElementById('drawerAvatar').innerText = user.initials;
+    document.getElementById('drawerName').innerText = user.name;
+    document.getElementById('drawerEmail').innerText = user.email;
+    document.getElementById('drawerNim').innerText = user.nim;
+    document.getElementById('drawerDept').innerText = user.dept;
+    document.getElementById('drawerCodScore').innerText = user.codScore;
+    document.getElementById('drawerTotalRent').innerText = user.totalRent;
+
+    const ktmEl = document.getElementById('drawerKtmStatus');
+    ktmEl.className = 'inline-flex items-center gap-1 px-2 py-0.5 rounded-full font-caption-bold text-[10.5px] ' + user.ktmClass;
+    ktmEl.innerHTML = '<span class="material-symbols-outlined text-[12px]">verified</span> ' + user.ktmStatus;
+  }
+
+  // Toast notifier
+  function showNotification(msg) {
+    const toast = document.getElementById('actionToast');
+    toast.innerText = msg;
+    toast.classList.remove('hidden');
+    setTimeout(() => {
+      toast.classList.add('hidden');
+    }, 3200);
+  }
+</script></div></main></div></body></html>

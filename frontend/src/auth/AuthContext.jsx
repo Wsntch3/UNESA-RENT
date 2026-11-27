@@ -1,5 +1,6 @@
 import { createContext, useCallback, useEffect, useMemo, useState } from 'react'
 import { authApi } from '../lib/authApi'
+import { ktmApi } from '../lib/api'
 import { clearToken, getToken, saveToken } from './tokenStorage'
 
 export const AuthContext = createContext(null)
@@ -10,6 +11,10 @@ export function AuthProvider({ children }) {
   const [status, setStatus] = useState(() => (getToken() ? 'loading' : 'anonymous'))
   const [error, setError] = useState(null)
   const [pending, setPending] = useState(false)
+
+  const [ktm, setKtm] = useState(null)
+  const [ktmLoading, setKtmLoading] = useState(false)
+  const [ktmNonce, setKtmNonce] = useState(0)
 
   useEffect(() => {
     if (!getToken()) return undefined
@@ -38,6 +43,35 @@ export function AuthProvider({ children }) {
     return () => controller.abort()
   }, [])
 
+  // Status verifikasi KTM hanya relevan untuk mahasiswa.
+  useEffect(() => {
+    if (status !== 'authenticated' || user?.role !== 'mahasiswa') {
+      setKtm(null)
+      setKtmLoading(false)
+      return undefined
+    }
+
+    let alive = true
+    setKtmLoading(true)
+    ktmApi
+      .mine()
+      .then((data) => {
+        if (alive) setKtm(data)
+      })
+      .catch(() => {
+        if (alive) setKtm(null)
+      })
+      .finally(() => {
+        if (alive) setKtmLoading(false)
+      })
+
+    return () => {
+      alive = false
+    }
+  }, [status, user?.id, user?.role, ktmNonce])
+
+  const refreshKtm = useCallback(() => setKtmNonce((n) => n + 1), [])
+
   const applySession = useCallback((data) => {
     saveToken(data.token)
     setToken(data.token)
@@ -52,6 +86,26 @@ export function AuthProvider({ children }) {
       setError(null)
       try {
         const data = await authApi.login(credentials)
+        // Login admin memerlukan OTP: jangan simpan sesi sebelum kode diverifikasi.
+        if (data.otp_required) return data
+        applySession(data)
+        return data.user
+      } catch (err) {
+        setError(err)
+        throw err
+      } finally {
+        setPending(false)
+      }
+    },
+    [applySession],
+  )
+
+  const loginOtp = useCallback(
+    async (payload) => {
+      setPending(true)
+      setError(null)
+      try {
+        const data = await authApi.loginOtp(payload)
         applySession(data)
         return data.user
       } catch (err) {
@@ -82,11 +136,32 @@ export function AuthProvider({ children }) {
     [applySession],
   )
 
+  const requestOtp = useCallback(async (payload) => {
+    setError(null)
+    return authApi.requestOtp(payload)
+  }, [])
+
+  const verifyOtp = useCallback(async (payload) => {
+    setError(null)
+    return authApi.verifyOtp(payload)
+  }, [])
+
+  const forgotPassword = useCallback(async (payload) => {
+    setError(null)
+    return authApi.forgotPassword(payload)
+  }, [])
+
+  const resetPassword = useCallback(async (payload) => {
+    setError(null)
+    return authApi.resetPassword(payload)
+  }, [])
+
   const logout = useCallback(() => {
     clearToken()
     setToken(null)
     setUser(null)
     setError(null)
+    setKtm(null)
     setStatus('anonymous')
   }, [])
 
@@ -99,11 +174,38 @@ export function AuthProvider({ children }) {
       pending,
       isAuthenticated: status === 'authenticated',
       login,
+      loginOtp,
       register,
+      requestOtp,
+      verifyOtp,
+      forgotPassword,
+      resetPassword,
       logout,
       clearError: () => setError(null),
+      ktm,
+      ktmLoading,
+      ktmVerified: Boolean(ktm?.verified),
+      ktmSubmission: ktm?.submissions?.[0] || null,
+      refreshKtm,
     }),
-    [user, token, status, error, pending, login, register, logout],
+    [
+      user,
+      token,
+      status,
+      error,
+      pending,
+      login,
+      loginOtp,
+      register,
+      requestOtp,
+      verifyOtp,
+      forgotPassword,
+      resetPassword,
+      logout,
+      ktm,
+      ktmLoading,
+      refreshKtm,
+    ],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

@@ -63,8 +63,9 @@ Root proyek dengan:
 │   └── vite.config.js
 ├── postgres/
 │   ├── initdb/000_extensions.sql
-│   ├── migrations/            # 0001 identity ... 0009 rental chat
-│   ├── seed/dev_seed.sql
+│   ├── migrations/            # 0001 identity ... 0013 admin governance
+│   ├── seed/reference.sql     # seed produksi (tanpa data demo)
+│   ├── seed/dev_seed.sql      # HANYA untuk lokal
 │   ├── docker-compose.yml
 │   ├── .env.example
 │   └── README.md
@@ -137,7 +138,8 @@ Atau dari root proyek:
 
 ```bash
 make db-up             # jalankan PostgreSQL dan migration
-make db-seed           # seed prodi, kategori, lokasi, admin, template surat
+make db-seed           # seed produksi: prodi, kategori, lokasi (reference.sql)
+make db-seed-dev       # seed demo lengkap; HANYA untuk lokal
 make db-migrate        # jalankan migration yang belum diterapkan
 make db-migrate-down   # rollback satu migration
 make db-down           # hentikan container, data tetap ada
@@ -596,6 +598,15 @@ Vite mem-proxy `/api` ke `http://localhost:8080`.
 ---
 
 ## Catatan keamanan & production
+
+> Rencana produksi lengkap (OTP email, pembatasan domain, KTM, chat terenkripsi,
+> COD, admin, dan deploy free tier) ada di
+> [`docs/RUNBOOK_PRODUKSI.md`](docs/RUNBOOK_PRODUKSI.md). Dokumen itu adalah
+> instruksi eksekusi final untuk sesi AI berikutnya.
+>
+> Langkah deploy manual (Supabase, Render, Vercel/Cloudflare, Brevo, backup,
+> monitoring, troubleshooting) ada di
+> [`docs/TUTORIAL_DEPLOY.md`](docs/TUTORIAL_DEPLOY.md).
 
 - Password di-hash bcrypt; hash tidak pernah dikirim ke client.
 - Login memakai pesan generik agar tidak membocorkan email mana yang terdaftar.
